@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from "react";
 import './Login.css';
 import { useNavigate } from "react-router-dom";
-import { auth,provider } from "./Firebase";
+import { auth,provider } from "../../Firebase";
 import { signInWithPopup } from "firebase/auth";
 const Login = () => {   
     const [userLogin,setUserLogin]=useState('');
@@ -9,16 +9,16 @@ const Login = () => {
     function halndleLogin(){
 
         signInWithPopup(auth,provider).then((userLoginData)=>{
-            setUserLogin(userLoginData);
-            console.log("name:",userLoginData.user.displayName,"  emailid:",userLoginData.user.email)
+            setUserLogin(userLoginData)
+            console.log(userLoginData)
             // localStorage.setItem("email",userLoginData.user.email,"username",userLoginData.user.displayName)
 
-
-            if(userLogin){
+            
+            if(userLoginData){
                 // use to navigate
-              navigate("/")
+              navigate("/");
             }else{
-                console.log("navigation not done..")
+                console.log("err");
             }
         })
     }
@@ -33,13 +33,14 @@ const Login = () => {
             <div className="relative mx-auto max-w-[525px] overflow-hidden rounded-lg bg-white px-10 py-16 text-center dark:bg-dark-2 sm:px-12 md:px-[60px]">
               <div className="mb-10 text-center md:mb-16">
                 <a
-                  href="/#"
+                  href="/"
                   className="mx-auto inline-block max-w-[160px]"
                 >
-                  <img
+                  {/* <img
                     src="https://cdn.tailgrids.com/2.0/image/assets/images/logo/logo-primary.svg"
                     alt="logo"
-                  />
+                  /> */}
+                  <p className="text-3xl font-bold">eTutorial</p>
                 </a>
               </div>
               <form>
