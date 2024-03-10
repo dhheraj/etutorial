@@ -1,7 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import firebase from "firebase/compat/app";
 import { getAnalytics } from "firebase/analytics";
 import {getAuth,GoogleAuthProvider} from "firebase/auth"
+import "firebase/compat/firestore";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -11,7 +13,7 @@ import {getAuth,GoogleAuthProvider} from "firebase/auth"
 const firebaseConfig = {
   apiKey: "AIzaSyAeXM_mdNJoODXP15d6OVcQ4YuWAbEsx4g",
   authDomain: "e-tutorial-5a35e.firebaseapp.com",
-  databaseURL: "https://e-tutorial-5a35e-default-rtdb.firebaseio.com",
+  // databaseURL: "https://e-tutorial-5a35e-default-rtdb.firebaseio.com",
   projectId: "e-tutorial-5a35e",
   storageBucket: "e-tutorial-5a35e.appspot.com",
   messagingSenderId: "676814200130",
@@ -20,8 +22,10 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = firebase.initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app)
+const firestore = firebase.firestore();
 const provider=new GoogleAuthProvider();
-export {auth,provider};
+// const firestore = firebaseConfig.firestore();
+export {auth,provider,firestore};

@@ -1,37 +1,130 @@
-import React,{useState,useEffect} from "react";
-import './Login.css';
+import React, { useState, useEffect, useContext } from "react";
+// import './Login.css';
 import { useNavigate } from "react-router-dom";
-import { auth,provider } from "../../Firebase";
-import { signInWithPopup } from "firebase/auth";
-const Login = () => {   
-    const [userLogin,setUserLogin]=useState('');
-    const navigate = useNavigate();
-    function halndleLogin(){
+import { auth, provider, firestore } from "../../Firebase";
+import { sendPasswordResetEmail, signInWithPopup } from "firebase/auth";
+// import 'firebase/firestore';
 
-        signInWithPopup(auth,provider).then((userLoginData)=>{
-            setUserLogin(userLoginData)
-            console.log(userLoginData)
-            // localStorage.setItem("email",userLoginData.user.email,"username",userLoginData.user.displayName)
+import { AuthContext } from "../../Context/AuthContext"
+const Login = () => {
+  const { authUser, setAuthUser } = useContext(AuthContext);
+  const [userLogin, setUserLogin] = useState({});
+  const navigate = useNavigate();
+  const [userLoginDocumentId,setUserLoginDocumentId]=useState('')
+  const contextValue = {
+    user: 'John',
+    providerId: '123456',
+    _tokenResponse: 'someToken',
+    operationType: 'login'
+  };
+  function halndleLogin() {
 
-            
-            if(userLoginData){
-                // use to navigate
-              navigate("/");
-            }else{
-                console.log("err");
-            }
-        })
-    }
-    // useEffect(()=>{
-    //     setUserLogin(localStorage.getItem('email'))
-    // })
+    signInWithPopup(auth, provider).then((userLoginData) => {
+      setUserLogin(userLoginData)
+      localStorage.setItem("eid", userLoginData.user.email)
+      localStorage.setItem("pp", userLoginData.user.photoURL)
+      localStorage.setItem("name", userLoginData.user.displayName)
+      localStorage.setItem("id", userLoginData.user.uid)
+
+
+      firestore.collection('userlogin').where('userId', '==', userLoginData.user.uid).get()
+      .then((querySnapshot) => {
+        // no data found then 
+          if (querySnapshot.empty) {
+            // Value is unique, send it to Firestore
+            firestore.collection('userlogin').add({
+              emailId: userLoginData.user.email,
+              photoUrl: userLoginData.user.photoURL,
+              name: userLoginData.user.displayName,
+              userId: userLoginData.user.uid,
+              // metadata: userLoginData.user.metadata,
+
+            })
+            .then((docRef) => {
+              console.log("Value added with ID: ", docRef.id);
+            })
+            .catch((error) => {
+              console.error("Error adding value: ", error);
+            });
+          } else {
+            console.table(querySnapshot)
+            // Value already exists, handle accordingly (e.g., show error message)
+            console.log("Value already exists");
+          }
+      })
+      .catch((error) => {
+        console.error("Error checking uniqueness: ", error);
+      });
+      // Define your data as an object
+      // var data = {
+      //   displayName: { name: userLoginData.user.displayName },
+      //   profileURL: { profilephoto: userLoginData.user.photoURL },
+      //   emailid: { email: userLoginData.user.email }
+      // };
+
+      // // Convert the object to a JSON string
+      // var dataString = JSON.stringify(data);
+
+      // // Store the data object in local storage
+      // localStorage.setItem('data', dataString);
+
+      // // Retrieve the data from local storage
+      // var retrievedDataString = localStorage.getItem('data');
+
+      // // Parse the JSON string back to an object
+      // var retrievedData = JSON.parse(retrievedDataString);
+
+      // // Now you can use the retrieved data
+      // console.log(retrievedData.data);
+      // console.log(userLoginData.user.uid)
+      // localStorage.setItem("photourl",userLoginData.user.photoURL)
+      // // data==userLogin
+      // const setData=localStorage.setItem("login",JSON.stringify(userLoginData))
+      // const loggedInUser = JSON.parse(localStorage.getItem(setData));
+
+
+      setAuthUser({ userLoginData })
+      console.log(userLoginData)
+
+      // firestore.collection('userlogin').add({
+      //   uid: userLoginData.user.uid,
+      //   // field2: data.field2,
+      //   // Add more fields as needed
+      // })
+      // .then(docRef => {
+      //   console.log("Document written with ID: ", docRef.id);
+      // })
+      // .catch(error => {
+      //   console.error("Error adding document: ", error);
+      // });
+
+      // setIsLoggedIn(true)
+      // console.log(authUser)
+      // console.log(authUser)
+      // console.log(userLogin)
+      // if(userLogin){
+
+      //     // use to navigate
+      //   navigate("/");
+      // }else{
+      //     console.log("err");
+      // }
+    })
+
+  }
+  // console.log(email, username, phototurl)
+  // useEffect(()=>{
+  //     localStorage.setItem("login",JSON.stringify(authUser))
+  // })
+
   return (
     <section className="bg-gray-1 py-20 dark:bg-dark lg:py-[120px]">
+      {/* {{userLogin}} */}
       <div className="container mx-auto">
         <div className="-mx-4 flex flex-wrap">
           <div className="w-full px-4">
             <div className="relative mx-auto max-w-[525px] overflow-hidden rounded-lg bg-white px-10 py-16 text-center dark:bg-dark-2 sm:px-12 md:px-[60px]">
-              <div className="mb-10 text-center md:mb-16">
+              <div className="mb-10 text-center">
                 <a
                   href="/"
                   className="mx-auto inline-block max-w-[160px]"
@@ -40,10 +133,10 @@ const Login = () => {
                     src="https://cdn.tailgrids.com/2.0/image/assets/images/logo/logo-primary.svg"
                     alt="logo"
                   /> */}
-                  <p className="text-3xl font-bold">eTutorial</p>
+                  <p className="text-3xl font-bold">e-Tutorial</p>
                 </a>
               </div>
-              <form>
+              {/* <form>
                 <InputBox type="email" name="email" placeholder="Email" />
                 <InputBox
                   type="password"
@@ -57,16 +150,17 @@ const Login = () => {
                     className="w-full cursor-pointer rounded-md border border-primary bg-primary px-5 py-3 text-base font-medium text-white transition hover:bg-opacity-90"
                   />
                 </div>
-              </form>
+              </form> */}
               <p className="mb-6 text-base text-secondary-color dark:text-dark-7">
                 Connect With
               </p>
-              <ul className="-mx-2 mb-12 flex justify-between">
-                <li className="w-full px-2">
-                  <a
+              <ul className="-mx-2 mb-12 flex justify-center place-items-center">
+                <li className=" px-2">
+                  {/* <a
                     href="/#"
                     className="flex h-11 items-center justify-center rounded-md bg-[#4064AC] hover:bg-opacity-90"
-                  >
+                  > */}
+                  <button className=" h-11 w-20 items-center justify-center flex rounded-md bg-[#4064AC] hover:bg-opacity-90">
                     <svg
                       width="10"
                       height="20"
@@ -79,13 +173,15 @@ const Login = () => {
                         fill="white"
                       />
                     </svg>
-                  </a>
+                  </button>
+                  {/* </a> */}
                 </li>
-                <li className="w-full px-2">
-                  <a
+                <li className="px-2">
+                  {/* <a
                     href="/#"
                     className="flex h-11 items-center justify-center rounded-md bg-[#1C9CEA] hover:bg-opacity-90"
-                  >
+                  > */}
+                  <button className=" h-11 w-20 items-center justify-center flex rounded-md bg-[#1C9CEA] hover:bg-opacity-90">
                     <svg
                       width="22"
                       height="16"
@@ -97,13 +193,13 @@ const Login = () => {
                         d="M19.5516 2.75538L20.9 1.25245C21.2903 0.845401 21.3968 0.53229 21.4323 0.375734C20.3677 0.939335 19.3742 1.1272 18.7355 1.1272H18.4871L18.3452 1.00196C17.4935 0.344423 16.429 0 15.2935 0C12.8097 0 10.8581 1.81605 10.8581 3.91389C10.8581 4.03914 10.8581 4.22701 10.8935 4.35225L11 4.97847L10.2548 4.94716C5.7129 4.82192 1.9871 1.37769 1.38387 0.782779C0.390323 2.34834 0.958064 3.85127 1.56129 4.79061L2.76774 6.54403L0.851613 5.6047C0.887097 6.91977 1.45484 7.95303 2.55484 8.7045L3.5129 9.33072L2.55484 9.67515C3.15806 11.272 4.50645 11.9296 5.5 12.18L6.8129 12.4932L5.57097 13.2446C3.58387 14.4971 1.1 14.4031 0 14.3092C2.23548 15.6869 4.89677 16 6.74194 16C8.12581 16 9.15484 15.8748 9.40322 15.7808C19.3387 13.7143 19.8 5.8865 19.8 4.32094V4.10176L20.0129 3.97652C21.2194 2.97456 21.7161 2.44227 22 2.12916C21.8935 2.16047 21.7516 2.22309 21.6097 2.2544L19.5516 2.75538Z"
                         fill="white"
                       />
-                    </svg>
-                  </a>
+                    </svg></button>
                 </li>
-                <li className="w-full px-2">
+                <li className="px-2">
+                  {/* <a className="flex h-11 items-center justify-center rounded-md bg-[#D64937] hover:bg-opacity-90"> */}
                   <button
                     onClick={halndleLogin}
-                    className="flex h-11 items-center justify-center rounded-md bg-[#D64937] hover:bg-opacity-90"
+                    className=" h-11 w-20 items-center justify-center flex rounded-md bg-[#D64937] hover:bg-opacity-90"
                   >
                     <svg
                       width="18"
@@ -118,9 +214,10 @@ const Login = () => {
                       />
                     </svg>
                   </button>
+                  {/* </a> */}
                 </li>
               </ul>
-              <a
+              {/* <a
                 href="/#"
                 className="mb-2 inline-block text-base text-dark hover:text-primary hover:underline dark:text-white"
               >
@@ -134,7 +231,7 @@ const Login = () => {
                 >
                   Sign Up
                 </a>
-              </p>
+              </p> */}
 
               <div>
                 <span className="absolute right-1 top-1">

@@ -19,7 +19,7 @@ const Footer = () => {
                     alt="logo"
                     className="max-w-full hidden dark:block"
                   /> */}
-                  <p className="text-3xl font-bold">eTutorial</p>
+                  <p className="text-3xl font-bold">e-Tutorial</p>
                 </a>
                 <p className="mb-7 text-base text-body-color dark:text-dark-6">
                   Sed ut perspiciatis undmnis is iste natus error sit amet
@@ -139,7 +139,7 @@ const Footer = () => {
                   </a>
                 </div>
                 <p className="text-base text-body-color dark:text-dark-6">
-                  &copy; 2025 TailGrids
+                  &copy; 2024 e-T
                 </p>
               </div>
             </div>

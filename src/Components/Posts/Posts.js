@@ -1,44 +1,123 @@
-import React from 'react'
-
+import React, { useState, useEffect, useRef } from 'react'
+import { auth, provider, firestore } from "../../Firebase";
+import { Spinner } from '@chakra-ui/react'
+import { CiMenuKebab,CiEdit } from "react-icons/ci";
+import { MdDelete } from "react-icons/md";
+import { Button } from 'primereact/button';
+import { Menu } from 'primereact/menu';
+import { Toast } from 'primereact/toast';
 const Posts = () => {
-    return (
-        <>
+  const [mergedData, setMergedData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const menuLeft = useRef(null);
+  const menuRight = useRef(null);
+  const toast = useRef(null);
+  const items = [
+    {
+      label: 'Options',
+      items: [
+        {
+          label: 'Refresh',
+          icon: 'pi pi-refresh'
+        },
+        {
+          label: 'Export',
+          icon: 'pi pi-upload'
+        }
+      ]
+    }
+  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Query posts collection
+        const postsSnapshot = await firestore.collection('posts').where("userId", "==", localStorage.getItem("id")).get();
+        const postsData = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+        // Query users collection
+        const usersSnapshot = await firestore.collection('userlogin').get();
+        const usersData = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-            <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
-                <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
-                    <li class="me-2" role="presentation">
-                        <button class="inline-block p-4 border-b-2 rounded-t-lg" id="profile-tab" data-tabs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Profile</button>
-                    </li>
-                    <li class="me-2" role="presentation">
-                        <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="dashboard-tab" data-tabs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="false">Dashboard</button>
-                    </li>
-                    <li class="me-2" role="presentation">
-                        <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="settings-tab" data-tabs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">Settings</button>
-                    </li>
-                    <li role="presentation">
-                        <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="contacts-tab" data-tabs-target="#contacts" type="button" role="tab" aria-controls="contacts" aria-selected="false">Contacts</button>
-                    </li>
+        // Merge data based on common field (userId)
+        const mergedData = postsData.map(post => {
+          const user = usersData.find(user => user.userId === post.userId);
+          return { ...post, user };
+        });
+
+        setMergedData(mergedData);
+      } catch (error) {
+        console.error('Error fetching data: ', error);
+      }
+      finally {
+        setLoading(false)
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <div>
+      <h1>Posted Content</h1>
+      {loading ?
+        <div className='flex justify-center text-center items-center h-96'>
+          LOADING...
+        </div>
+
+        : ""}
+      {mergedData.map(item => (
+        <div key={item.id} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+          <div className='mb-3 flex justify-between'>
+            <div className='mb-3 flex '>
+              <img className='w-12' src={localStorage.getItem("pp")} />
+
+              <div className='mt-1 ml-3 '>
+                <p className='text-lg'>{localStorage.getItem("name")}</p>
+                <h6 className='text-sm'>Posted on: {item.postedDate}</h6>
+              </div>
+            </div>
+            <div className='mt-1'>
+
+              <div class="group inline-block">
+                <button
+                  class=" px-3 py-1 bg-white rounded-sm flex"
+                >
+                  <span class="pr-1 font-semibold flex-1"> <CiMenuKebab /></span>
+                </button>
+                <ul
+                  class="bg-white border rounded-sm transform scale-0 group-hover:scale-100 absolute 
+          transition duration-150 ease-in-out origin-top p-3"
+                >
+                  <li class="flex rounded-sm p-3 hover:bg-gray-100"><CiEdit size={22}/>&nbsp;Edit</li>
+                  <li class="rounded-sm p-3 hover:bg-gray-100 flex"><MdDelete  size={22}/>&nbsp;Delete</li>
                 </ul>
+              </div>
+
+             
             </div>
-            <div id="default-tab-content">
-                <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">This is some placeholder content the <strong class="font-medium text-gray-800 dark:text-white">Profile tab's associated content</strong>. Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the content visibility and styling.</p>
-                </div>
-                <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">This is some placeholder content the <strong class="font-medium text-gray-800 dark:text-white">Dashboard tab's associated content</strong>. Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the content visibility and styling.</p>
-                </div>
-                <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="settings" role="tabpanel" aria-labelledby="settings-tab">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">This is some placeholder content the <strong class="font-medium text-gray-800 dark:text-white">Settings tab's associated content</strong>. Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the content visibility and styling.</p>
-                </div>
-                <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="contacts" role="tabpanel" aria-labelledby="contacts-tab">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">This is some placeholder content the <strong class="font-medium text-gray-800 dark:text-white">Contacts tab's associated content</strong>. Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the content visibility and styling.</p>
-                </div>
-            </div>
+          </div>
 
-        </>
-    )
-}
+          {/* <div onClick={() => handleClick(doc)}> */}
+          <a href="#" >
+            <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+              {item.postTitle}
+            </h5>
+          </a>
+          <p class="line-clamp-1" dangerouslySetInnerHTML={{ __html: item.postContent }} />
 
-export default Posts
+          {/* </div> */}
+        </div>
+        // <li key={item.id}>
+        //   <strong>Title:</strong> {item.postTitle}<br />
+        //   {/* <strong>Content:</strong><p dangerouslySetInnerHTML={{ __html: item.postContent }}/><br /> */}
 
+        //   <strong>User:</strong> {item.user ? item.user.name : 'Unknown'}<br />
+        //   {item.user?<img src={item.user.photoUrl}/>:'Unknown'}
+
+        // </li>
+      ))}
+    </div>
+  );
+};
+
+export default Posts;

@@ -4,7 +4,7 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import React from 'react';
+import React,{useContext, useState} from 'react';
 import './App.css';
 import Home from "./Components/Home/Home";
 import Login from "./Components/Login/Login";
@@ -16,13 +16,20 @@ import Posts from "./Components/Posts/Posts";
 import UploadPost from "./Components/UploadPost/UploadPost";
 import TextPost from "./Components/UploadPost/TextPost/TextPost";
 import ImagePost from "./Components/UploadPost/ImagePost/ImagePost";
+
+
+import {AuthContext} from "./Context/AuthContext";
+import PreviewPost from './Components/Home/PreviewPost/PreviewPost';
+
 function App() {
+  const {  authUser, setAuthUser }=useContext(AuthContext);
+  // localStorage.setItem("login1",JSON.stringify(authUser))
   return (
-    <>
-    
+    <>   
       {/* <p
         className='text-center text-7xl text-green-300 bg-black'
       >App</p> */}
+      
       <Navbar/>
       <BrowserRouter>
         <Routes>
@@ -66,9 +73,16 @@ function App() {
             path="/uploadpost/imagepost"
             element={<ImagePost />}
           />
+          <Route
+            exact
+            path="/search/postpreview/:postId"
+            element={<PreviewPost />}
+          />
         </Routes>
       </BrowserRouter>
       <Footer/>
+      
+      
     </>
   );
 }

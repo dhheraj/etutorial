@@ -13,17 +13,17 @@ import {
 } from "@material-tailwind/react";
 
 const UploadPost = () => {
-    const navigate=useNavigate();
+    const navigate = useNavigate();
     const editor = useRef(null);
     const [content, setContent] = useState('');
 
     function handlePost() {
         console.log(content);
     }
-    function handleTextTypeOfPost(){
+    function handleTextTypeOfPost() {
         navigate("/uploadpost/textpost")
     }
-    function handleImageTypeOfPost(){
+    function handleImageTypeOfPost() {
         navigate("/uploadpost/imagepost")
     }
 
@@ -54,21 +54,23 @@ const UploadPost = () => {
                     className='m-5 dark:bg-dark-2 border-dark dark:border-dark-2 border rounded-full inline-flex items-center justify-center py-3 px-7 text-center text-base font-medium text-black hover:bg-body-color hover:border-body-color disabled:bg-gray-3 disabled:border-gray-3 disabled:text-dark-5'
                 >Save as Draft</button>
             </div> */}
-            <section className="bg-white pb-10 pt-20 dark:bg-dark lg:pb-20 lg:pt-[120px] text-center">
+            <section className="bg-white  pt-10 dark:bg-dark lg:pt-[60px] text-center">
                 <div className="container">
                     <div className="-mx-4 flex flex-wrap">
                         <div className="w-full px-4">
-                            <div className="mx-auto mb-[60px] max-w-[510px] text-center lg:mb-20">
+                            <div className="mx-auto max-w-[510px] text-center lg:mb-20">
                                 <span className="mb-2 block text-lg font-semibold text-primary">
                                     Tyoes of Post
                                 </span>
-                                <h2 className="mb-4 text-3xl font-bold text-dark dark:text-white sm:text-4xl md:text-[40px]">
+                                <h2 className=" text-3xl font-bold text-dark dark:text-white sm:text-4xl md:text-[40px]">
                                     Select any one method...
                                 </h2>
                                 {/* <p className="text-base text-body-color dark:text-dark-6">
                                  z   There are many variations of passages of Lorem Ipsum available
                                     but the majority have suffered alteration in some form.
                                 </p> */}
+
+
                             </div>
                         </div>
                     </div>
@@ -96,7 +98,20 @@ const UploadPost = () => {
 
                 </div>
             </section>
-            <Card className="mt-6 w-96">
+            <div className='flex justify-center'>
+                <button onClick={handleTextTypeOfPost} class="block max-w-sm p-6 m-5 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Text Post</h5>
+                    {/* <p class="font-normal text-gray-700 dark:text-gray-400">Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.</p> */}
+                </button>
+
+                <button onClick={handleImageTypeOfPost} class="block max-w-sm p-6 m-5 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Image/Video Post</h5>
+                    {/* <p class="font-normal text-gray-700 dark:text-gray-400">Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.</p> */}
+                </button>
+            </div>
+            {/* <Card className="mt-6 w-96">
                 <CardBody>
                     <Typography variant="h5" color="blue-gray" className="mb-2">
                         Text
@@ -125,7 +140,7 @@ const UploadPost = () => {
                 <CardFooter className="pt-0">
                     <Button onClick={handleImageTypeOfPost}>Read More</Button>
                 </CardFooter>
-            </Card>
+            </Card> */}
             {/* <Card className="mt-6 w-96">
                 <CardBody>
                     <Typography variant="h5" color="blue-gray" className="mb-2">
