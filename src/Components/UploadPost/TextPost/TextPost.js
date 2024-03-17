@@ -1,4 +1,4 @@
-import React, { useContext,useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { useState, useRef } from 'react';
 import JoditEditor from 'jodit-react';
 import TagsInput from 'react-tagsinput'
@@ -11,7 +11,8 @@ import {
     AlertIcon,
     AlertTitle,
     AlertDescription,
-  } from '@chakra-ui/react'
+} from '@chakra-ui/react'
+import { async } from '@firebase/util';
 
 // import {AuthContext} from '../../../Context/AuthContext';
 const TextPost = () => {
@@ -19,13 +20,13 @@ const TextPost = () => {
 
 
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState();
     const [content, setContent] = useState('');
     const [tags, setTags] = useState([]);
     // Get current date
     const currentDate = new Date();
-    
+
     // Convert date to string
     const dateString = currentDate.toDateString();
     const uniqueId = uuidv4();
@@ -40,8 +41,8 @@ const TextPost = () => {
     const handleTitleChange = (event) => {
         setTitle(event.target.value)
     }
-    
-    
+
+
     // const handleTextareaChange = (event) => {
     //     // setTextareaValue(event.target.value);
     //     // Split the textarea value by newline characters ("\n")
@@ -52,12 +53,10 @@ const TextPost = () => {
     //  };
 
 
-    function handlePost() {
-        console.log(tags);
+    const handlePost = () => {
+        // console.log(tags);
 
-        
-        
-            // Value is unique, send it to Firestore
+        try {
             firestore.collection('posts').add({
                 postId: uniqueId,
                 userId: localStorage.getItem("id"),
@@ -65,34 +64,42 @@ const TextPost = () => {
                 postContent: content,
                 tags: tags,
                 postedDate: dateString,
-              
-              // metadata: userLoginData.user.metadata,
+
+                // metadata: userLoginData.user.metadata,
 
             })
-            .then((docRef) => {
-              console.log("Value added with ID: ", docRef.id);
-              setLoading(false)
-            })
-            .catch((error) => {
-              console.error("Error adding value: ", error);
-            });
-            if (loading) {
-                navigate("/")
-                return <div>Loading...</div>;
-            }
+                .then((docRef) => {
+                    console.log("Value added with ID: ", docRef.id);
+                    setLoading(false)
+                })
+                .catch((error) => {
+                    console.error("Error adding value: ", error);
+                });
+            setLoading(true)
+        } finally {
+            setLoading(false)
+            navigate("/dashboard")
+        }
+
+        // Value is unique, send it to Firestore
+
+
 
     }
-    
+    if (loading) {
+        navigate("/")
+        return <div>LOADING...</div>;
+    }
 
-    const handleSaveAsDraft=()=>{
-        
+    const handleSaveAsDraft = () => {
+
         console.log('Title:', title);
     }
 
 
     // useEffect(() => {
-        
-    
+
+
     //     // Log current date string to the console
     //     console.log('Current Date:', dateString);
     //     console.log('Title:', title);
@@ -105,7 +112,7 @@ const TextPost = () => {
         <div className='m-20'>
             {/* {userlogindata} */}
             <p className='m-5 text-3xl font-bold text-center'>Write here to post...</p>
-            <input type={"text"} placeholder='Title' value={title} onChange={handleTitleChange}/>
+            <input type={"text"} placeholder='Title' value={title} onChange={handleTitleChange} />
             <JoditEditor
                 ref={editor}
                 value={content}
@@ -113,26 +120,27 @@ const TextPost = () => {
                 // tabIndex={1} // tabIndex of textarea
                 onBlur={newContent => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
                 onChange={newContent => { }}
+                
             />
             {/* onChange={handleTextareaChange}  */}
             {/* <textarea onChange={handleTextareaChange} placeholder='Tags'/> */}
-            <Alert status='success' variant='left-accent'>
-    <AlertIcon />
-    Data uploaded to the server. Fire on!
-  </Alert>
+            {/* <Alert status='success' variant='left-accent'>
+                <AlertIcon />
+                Data uploaded to the server. Fire on!
+            </Alert> */}
             <TagsInput value={tags} onChange={handleTagsInputChange} />
 
             <div className='text-center'>
                 <button onClick={handlePost}
                     className='m-5 bg-dark dark:bg-dark-2 border-dark dark:border-dark-2 border rounded-full inline-flex items-center justify-center py-3 px-7 text-center text-base font-medium text-white hover:bg-body-color hover:border-body-color disabled:bg-gray-3 disabled:border-gray-3 disabled:text-dark-5'
                 >Post</button>
-                <button onClick={handleSaveAsDraft}
+                {/* <button onClick={handleSaveAsDraft}
                     className='m-5 dark:bg-dark-2 border-dark dark:border-dark-2 border rounded-full inline-flex items-center justify-center py-3 px-7 text-center text-base font-medium text-black hover:bg-body-color hover:border-body-color disabled:bg-gray-3 disabled:border-gray-3 disabled:text-dark-5'
-                >Save as Draft</button>
+                >Save as Draft</button> */}
             </div>
 
             <div>
-            <p>Generated ID: {uniqueId}</p>
+                <p>Generated ID: {uniqueId}</p>
                 {/* {content}
                 <p dangerouslySetInnerHTML={{ __html: content }} /> */}
             </div>

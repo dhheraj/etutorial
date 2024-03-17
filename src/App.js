@@ -5,6 +5,7 @@ import {
   Route,
 } from "react-router-dom";
 import React,{useContext, useState} from 'react';
+import { PrimeReactProvider } from 'primereact/api';
 import './App.css';
 import Home from "./Components/Home/Home";
 import Login from "./Components/Login/Login";
@@ -21,8 +22,11 @@ import ImagePost from "./Components/UploadPost/ImagePost/ImagePost";
 import {AuthContext} from "./Context/AuthContext";
 import PreviewPost from './Components/Home/PreviewPost/PreviewPost';
 
-function App() {
+function App({ Component }) {
   const {  authUser, setAuthUser }=useContext(AuthContext);
+  const value = {
+    ripple: false,
+};
   // localStorage.setItem("login1",JSON.stringify(authUser))
   return (
     <>   
@@ -80,7 +84,7 @@ function App() {
           />
         </Routes>
       </BrowserRouter>
-      <Footer/>
+      {/* <Footer/> */}
       
       
     </>

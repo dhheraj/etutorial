@@ -9,24 +9,6 @@ import { Toast } from 'primereact/toast';
 const Posts = () => {
   const [mergedData, setMergedData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const menuLeft = useRef(null);
-  const menuRight = useRef(null);
-  const toast = useRef(null);
-  const items = [
-    {
-      label: 'Options',
-      items: [
-        {
-          label: 'Refresh',
-          icon: 'pi pi-refresh'
-        },
-        {
-          label: 'Export',
-          icon: 'pi pi-upload'
-        }
-      ]
-    }
-  ];
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,9 +42,13 @@ const Posts = () => {
     <div>
       <h1>Posted Content</h1>
       {loading ?
-        <div className='flex justify-center text-center items-center h-96'>
-          LOADING...
+        <div class="flex justify-center items-center h-screen">
+        <div class="relative inline-flex">
+            <div class="w-8 h-8 bg-blue-500 rounded-full"></div>
+            <div class="w-8 h-8 bg-blue-500 rounded-full absolute top-0 left-0 animate-ping"></div>
+            <div class="w-8 h-8 bg-blue-500 rounded-full absolute top-0 left-0 animate-pulse"></div>
         </div>
+    </div>
 
         : ""}
       {mergedData.map(item => (

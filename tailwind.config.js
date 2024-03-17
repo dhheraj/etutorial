@@ -3,12 +3,22 @@ const withMT = require("@material-tailwind/react/utils/withMT");
 module.exports = withMT({
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./node_modules/primereact/**/*.{js,ts,jsx,tsx}",
+
+    // Or if using `src` directory:
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+  
   ],
   theme: {
+    // daisyui: {
+    //   themes: ["cupcake", "dark", "cmyk"],
+    // },
 
     extend: {},
   },
-  plugins: [require("tailgrids/plugin")],
+  plugins: [require('flowbite/plugin')],
 });
 

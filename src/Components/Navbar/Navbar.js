@@ -294,7 +294,7 @@
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon, PlusCircleIcon } from '@heroicons/react/24/outline'
-
+import { NavLink } from "react-router-dom";
 const navigation = [
   { name: 'Home', href: '/', current: false },
   { name: 'Posts', href: '/posts', current: false },

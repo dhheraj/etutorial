@@ -7,7 +7,7 @@ import { sendPasswordResetEmail, signInWithPopup } from "firebase/auth";
 
 import { AuthContext } from "../../Context/AuthContext"
 const Login = () => {
-  const { authUser, setAuthUser } = useContext(AuthContext);
+  // const { authUser, setAuthUser } = useContext(AuthContext);
   const [userLogin, setUserLogin] = useState({});
   const navigate = useNavigate();
   const [userLoginDocumentId,setUserLoginDocumentId]=useState('')
@@ -83,8 +83,8 @@ const Login = () => {
       // const loggedInUser = JSON.parse(localStorage.getItem(setData));
 
 
-      setAuthUser({ userLoginData })
-      console.log(userLoginData)
+      // setAuthUser({ userLoginData })
+      // console.log(userLoginData)
 
       // firestore.collection('userlogin').add({
       //   uid: userLoginData.user.uid,
@@ -102,13 +102,13 @@ const Login = () => {
       // console.log(authUser)
       // console.log(authUser)
       // console.log(userLogin)
-      // if(userLogin){
+      if(userLoginData){
 
-      //     // use to navigate
-      //   navigate("/");
-      // }else{
-      //     console.log("err");
-      // }
+          // use to navigate
+        navigate("/");
+      }else{
+          console.log("err");
+      }
     })
 
   }
