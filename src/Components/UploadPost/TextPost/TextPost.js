@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import JoditEditor from 'jodit-react';
 import TagsInput from 'react-tagsinput'
 import 'react-tagsinput/react-tagsinput.css'
-import { auth, provider, firestore } from "./../../../Firebase";
+import { auth, provider, firestore}  from "./../../../Firebase";
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from "react-router-dom";
 import {
@@ -18,7 +18,7 @@ import { async } from '@firebase/util';
 const TextPost = () => {
     const editor = useRef(null);
 
-
+    const [uniqueIdCheck,setUniqueIdCheck]=useState([]);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState();
@@ -55,8 +55,9 @@ const TextPost = () => {
 
     const handlePost = () => {
         // console.log(tags);
-
+        
         try {
+            
             firestore.collection('posts').add({
                 postId: uniqueId,
                 userId: localStorage.getItem("id"),
@@ -80,11 +81,6 @@ const TextPost = () => {
             setLoading(false)
             navigate("/dashboard")
         }
-
-        // Value is unique, send it to Firestore
-
-
-
     }
     if (loading) {
         navigate("/")
@@ -132,7 +128,7 @@ const TextPost = () => {
 
             <div className='text-center'>
                 <button onClick={handlePost}
-                    className='m-5 bg-dark dark:bg-dark-2 border-dark dark:border-dark-2 border rounded-full inline-flex items-center justify-center py-3 px-7 text-center text-base font-medium text-white hover:bg-body-color hover:border-body-color disabled:bg-gray-3 disabled:border-gray-3 disabled:text-dark-5'
+                    className='m-5 bg-black dark:bg-black-2 border-black black:border-black-2 border rounded-full inline-flex items-center justify-center py-3 px-7 text-center text-base font-medium text-white hover:bg-body-color hover:border-body-color disabled:bg-gray-3 disabled:border-gray-3 disabled:text-black-5'
                 >Post</button>
                 {/* <button onClick={handleSaveAsDraft}
                     className='m-5 dark:bg-dark-2 border-dark dark:border-dark-2 border rounded-full inline-flex items-center justify-center py-3 px-7 text-center text-base font-medium text-black hover:bg-body-color hover:border-body-color disabled:bg-gray-3 disabled:border-gray-3 disabled:text-dark-5'
