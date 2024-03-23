@@ -21,6 +21,7 @@ import ImagePost from "./Components/UploadPost/ImagePost/ImagePost";
 
 import {AuthContext} from "./Context/AuthContext";
 import PreviewPost from './Components/Home/PreviewPost/PreviewPost';
+import EditPost from './Components/Posts/EditPost/EditPost';
 
 function App({ Component }) {
   const {  authUser, setAuthUser }=useContext(AuthContext);
@@ -82,6 +83,11 @@ function App({ Component }) {
             path="/search/postpreview/:postId"
             element={<PreviewPost />}
           />
+          <Route
+          exact
+          path="/editpost/:postId"
+          element={<EditPost />}
+        />
         </Routes>
       </BrowserRouter>
       {/* <Footer/> */}

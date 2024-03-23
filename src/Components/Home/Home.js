@@ -8,6 +8,7 @@ import { CgSearch } from "react-icons/cg";
 import { Input } from "@material-tailwind/react";
 import { IconButton } from "@material-tailwind/react";
 import { Link, NavLink } from 'react-router-dom';
+import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 // import {MagnifyingGlassIcons} from "@heroicons/react"
 const Home = () => {
     // const { authUser, setAuthUser, postPreview, setPostPreview } = useContext(AuthContext);
@@ -21,6 +22,8 @@ const Home = () => {
     const [search, setSearch] = useState('');
     const [data, setData] = useState('');
     const [dataId, setDataId] = useState('');
+    const [textmergedData, setTextMergedData] = useState([]);
+    const [imagemergedData, setImageMergedData] = useState([]);
     // const history = useHistory(); //Not working in the project
 
 
@@ -68,10 +71,41 @@ const Home = () => {
 
         try {
             setLoading(true)
-            const snapshot = await firestore.collection('posts').where('tags', 'array-contains', search).get();
-            const documentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setProfileData(documentsData);
-            console.table(profiledata)
+
+
+            const textpostsSnapshot = await firestore.collection('posts').where('tags', 'array-contains', search).get();
+            const textpostsData = textpostsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+
+            const imagepostsSnapshot = await firestore.collection('imageposts').where('tags', 'array-contains', search).get();
+            const imagepostsData = imagepostsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // Query users collection
+
+
+            const usersSnapshot = await firestore.collection('userlogin').get();
+            const usersData = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+
+            const textmergedData = textpostsData.map(post => {
+                const user = usersData.find(user => user.userId === post.userId);
+                return { ...post, user };
+            });
+
+            setTextMergedData(textmergedData);
+
+
+            const imagemergedData = imagepostsData.map(post => {
+                const user = usersData.find(user => user.userId === post.userId);
+                return { ...post, user };
+            });
+            
+            setImageMergedData(imagemergedData);
+
+
+            // const snapshot = await firestore.collection('posts').where('tags', 'array-contains', search).get();
+            // const documentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // setProfileData(documentsData);
+            // console.table(profiledata)
 
         } catch (error) {
             console.error('Error fetching documents: ', error.message);
@@ -136,29 +170,111 @@ const Home = () => {
                     <button onClick={handleSearch} disabled={loading} class=" rounded-md p-2.5 text-gray-70 bg-cyan-500 hover:bg-cyan-300 ..."><CgSearch size={27} /></button>
                 </div>
             </div>
-            {loading ?
-                //     <div class="border border-blue-300 shadow rounded-md p-4 m-4 max-w-4/5 w-4/5 mx-auto ">
-                //     <div class="animate-pulse flex space-x-4">
-                //         <div class="rounded-full bg-slate-200 h-10 w-10 bg-black"></div>
-                //         <div class="flex-1 space-y-6 py-1">
-                //             <div class="h-2 bg-slate-200 rounded bg-black"></div>
-                //             <div class="space-y-3">
-                //                 <div class="grid grid-cols-3 gap-4">
-                //                     <div class="h-2 bg-slate-200 rounded bg-black col-span-2"></div>
-                //                     <div class="h-2 bg-slate-200 rounded bg-black col-span-1"></div>
-                //                 </div>
-                //                 <div class="h-2 bg-slate-200 rounded bg-black"></div>
-                //             </div>
-                //         </div>
-                //     </div>
-                // </div>
-                <div class='flex space-x-2 justify-center bg-white h-screen dark:invert mt-5'>
-                    <span class='sr-only'>Loading...</span>
-                    <div class='h-4 w-4 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                    <div class='h-4 w-4 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                    <div class='h-4 w-4 bg-black rounded-full animate-bounce'></div>
-                </div>
-                : ""
+
+
+
+
+            <Tabs>
+                <TabList >
+                    <Tab>Text</Tab>
+                    <Tab>Image</Tab>
+                    {/* <Tab>Three</Tab> */}
+                </TabList>
+
+                <TabPanels>
+                    <TabPanel>
+                        {
+                            textmergedData.map(doc => (
+
+                                <div key={doc.postId} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                                    <div className='mb-3 flex'>
+                                        {doc.user ? <img className='w-12 rounded-full' src={doc.user.photoUrl} /> : ""}
+                                        {doc.user ?
+                                            <div className='mt-1 ml-3 '>
+                                                <p className='text-lg'>{doc.user.name}</p>
+                                                <h6 className='text-sm'>Posted on: {doc.postedDate}</h6>
+                                            </div> : ""}
+
+                                    </div>
+                                    <div onClick={() => handleClick(doc)}>
+                                        {/* <div onClick={handleTransfer}> */}
+                                        <Link to={data}>
+                                            <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                                {doc.postTitle}
+                                            </h5>
+                                        </Link>
+                                        {/* </div> */}
+
+                                        <p className="line-clamp-1" dangerouslySetInnerHTML={{ __html: doc.postContent }} />
+
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </TabPanel>
+                    <TabPanel>
+                    {
+                            imagemergedData.map(doc => (
+
+                                <div key={doc.postId} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                                    <div className='mb-3 flex'>
+                                        {doc.user ? <img className='w-12 rounded-full' src={doc.user.photoUrl} /> : ""}
+                                        {doc.user ?
+                                            <div className='mt-1 ml-3 '>
+                                                <p className='text-lg'>{doc.user.name}</p>
+                                                <h6 className='text-sm'>Posted on: {doc.postedDate}</h6>
+                                            </div> : ""}
+
+                                    </div>
+                                    <div onClick={() => handleClick(doc)}>
+                                        {/* <div onClick={handleTransfer}> */}
+                                        <Link to={data}>
+                                            <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                                {doc.title}
+                                            </h5>
+                                        </Link>
+                                        {/* </div> */}
+
+                                        <img className='w-40' src={doc.url} />
+
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </TabPanel>
+                    {/* <TabPanel>
+                        <p>three!</p>
+                    </TabPanel> */}
+                </TabPanels>
+            </Tabs>
+
+
+
+
+            {
+                loading ?
+                    //     <div class="border border-blue-300 shadow rounded-md p-4 m-4 max-w-4/5 w-4/5 mx-auto ">
+                    //     <div class="animate-pulse flex space-x-4">
+                    //         <div class="rounded-full bg-slate-200 h-10 w-10 bg-black"></div>
+                    //         <div class="flex-1 space-y-6 py-1">
+                    //             <div class="h-2 bg-slate-200 rounded bg-black"></div>
+                    //             <div class="space-y-3">
+                    //                 <div class="grid grid-cols-3 gap-4">
+                    //                     <div class="h-2 bg-slate-200 rounded bg-black col-span-2"></div>
+                    //                     <div class="h-2 bg-slate-200 rounded bg-black col-span-1"></div>
+                    //                 </div>
+                    //                 <div class="h-2 bg-slate-200 rounded bg-black"></div>
+                    //             </div>
+                    //         </div>
+                    //     </div>
+                    // </div>
+                    <div class='flex space-x-2 justify-center bg-white h-screen dark:invert mt-5'>
+                        <span class='sr-only'>Loading...</span>
+                        <div class='h-4 w-4 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+                        <div class='h-4 w-4 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+                        <div class='h-4 w-4 bg-black rounded-full animate-bounce'></div>
+                    </div>
+                    : ""
             }
 
 
@@ -173,33 +289,10 @@ const Home = () => {
             {/* {profiledata.map(item => (
           <li key={item.postId}>{item.postTitle}</li>
         ))} */}
-            {profiledata.map(doc => (
 
-                <div key={doc.postId} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                    <div className='mb-3 flex'>
-                        <img className='w-12' src={localStorage.getItem("pp")} />
-                        <div className='mt-1 ml-3 '>
-                            <p className='text-lg'>{localStorage.getItem("name")}</p>
-                            <h6 className='text-sm'>Posted on: {doc.postedDate}</h6>
-                        </div>
-                    </div>
-                    <div onClick={() => handleClick(doc)}>
-                        {/* <div onClick={handleTransfer}> */}
-                        <Link to={data}>
-                            <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                {doc.postTitle}
-                            </h5>
-                        </Link>
-                        {/* </div> */}
 
-                        <p className="line-clamp-1" dangerouslySetInnerHTML={{ __html: doc.postContent }} />
+        </div >
 
-                    </div>
-                </div>
-            ))}
-            
-        </div>
-        
     )
 }
 

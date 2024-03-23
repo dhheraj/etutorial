@@ -2,18 +2,33 @@ import React, { useState, useEffect } from 'react'
 import { firestore, storage } from "./../../../Firebase";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import TagsInput from 'react-tagsinput'
+import { v4 as uuidv4 } from 'uuid';
 const ImagePost = () => {
     const [image, setImage] = useState(null);
     const [userId, setUserId] = useState(localStorage.getItem("id"));
     const [images1, setImages1] = useState([]);
     const navigate = useNavigate();
+    const [title, setTitle] = useState();
+    const [tags, setTags] = useState([]);
+    const uniqueId = uuidv4();
+    const currentDate = new Date();
+    const dateString = currentDate.toDateString();
+    const [postedDate, setPostedDate] = useState(dateString);
+    const [postId,setPostId]=useState(uniqueId)
     const handleImageChange = (e) => {
         if (e.target.files[0]) {
             setImage(e.target.files[0]);
         }
     };
     const [imageUrls, setImageUrls] = useState([]);
-
+    const handleTagsInputChange = (tags) => {
+        setTags(tags)
+    }
+    // handleTitleChange
+    const handleTitleChange = (event) => {
+        setTitle(event.target.value)
+    }
     useEffect(() => {
         const fetchImages = async () => {
             try {
@@ -54,8 +69,8 @@ const ImagePost = () => {
                     .getDownloadURL()
                     .then((url) => {
                         // Store the URL in Firestore or perform other actions
-                        firestore.collection("imageposts").add({ url ,userId});
-                        console.log(url.name)
+                        firestore.collection("imageposts").add({ url ,userId,title,tags,postId,postedDate});
+                        console.log(url)
                     });
                     
 
@@ -66,6 +81,7 @@ const ImagePost = () => {
 
     return (
         <div className='m-20'>
+            <input type={"text"} placeholder='Title' value={title} onChange={handleTitleChange} />
             <div className="flex items-center justify-center w-full">
                 <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -78,6 +94,7 @@ const ImagePost = () => {
                     <input onChange={handleImageChange} id="dropzone-file" type="file" className="hidden" />
                 </label>
             </div>
+            <TagsInput value={tags} onChange={handleTagsInputChange} />
             <button
                 onClick={handleUpload}
                 className='m-5 bg-black dark:bg-black-2 border-black black:border-black-2 border rounded-full inline-flex items-center justify-center py-3 px-7 text-center text-base font-medium text-white hover:bg-body-color hover:border-body-color disabled:bg-gray-3 disabled:border-gray-3 disabled:text-black-5'><IoCloudUploadOutline />&nbsp;&nbsp;Upload</button>

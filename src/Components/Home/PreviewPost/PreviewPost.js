@@ -13,6 +13,11 @@ const PreviewPost = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mergedData, setMergedData] = useState([]);
+  const [isLike, setIsLike] = useState(false);
+  const [like, setLike] = useState(0);
+  const [isSave, setIsSave] = useState(false);
+  const [isComment, setIsComment] = useState(false);
+  const [liked, setLiked] = useState(false);
   useEffect(() => {
     // Function to fetch a single document from Firestore
     // firestore.collection("userlogin").doc(localStorage.getItem("did")).get()
@@ -42,6 +47,20 @@ const PreviewPost = () => {
     };
 
     fetchData();
+    const fetchLikes = async () => {
+      try {
+        const postRef = firestore.collection('posts').doc(postId);
+        const doc = await postRef.get();
+        if (doc.exists) {
+          const postData = doc.data();
+          setLike(postData.likes || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching likes:', error);
+      }
+    };
+
+    fetchLikes();
 
     // .then((snapShot)=>{
     //   if(snapShot){
@@ -49,7 +68,7 @@ const PreviewPost = () => {
     //   }
     // })
     // Invoke the function
-  }, []);
+  }, [postId]);
   if (loading) {
     return <div className="text-center">
       <div role="status">
@@ -65,7 +84,27 @@ const PreviewPost = () => {
   if (error) {
     return <div>Error: {error}</div>;
   }
+      const handleLikeBtn = async () => {
+        try {
+          await firestore().collection('posts').doc(postId).update({
+            likes: firestore.like.increment(1)
+          });
+          setLike(like + 1);
+          setLiked(true);
+        } catch (error) {
+          console.error('Error liking post:', error);
+        }
+      };
+  
+  const handleSaveBtn = () => {
 
+  }
+  const handleMenuBtn = () => {
+
+  }
+  const handleCommentBtn = () => {
+
+  }
   return (
     <div>
       {/* {postId}<br /> */}
@@ -96,21 +135,25 @@ const PreviewPost = () => {
           </div>
           <div className='m-5 flex'>
             <div className='flex'>
-              <IoIosHeartEmpty size={26} />
-              <p className='text-xl'>0</p>
+              <button onClick={handleLikeBtn}>
+                <IoIosHeartEmpty size={26} /></button>
+              <p className='text-xl'>{like}</p>
             </div>
             <div>
-              <IoBookmarkOutline size={26} />
+              <button onClick={handleSaveBtn}>
+                <IoBookmarkOutline size={26} /></button>
             </div>
             <div>
-              <CiMenuKebab size={26} />
+              <button onClick={handleMenuBtn}>
+                <CiMenuKebab size={26} /></button>
             </div>
           </div>
 
           <p dangerouslySetInnerHTML={{ __html: item.postContent }} />{/* Post content is displaying here */}
           <div className='m-5 flex'>
             <div className='flex'>
-              <GoComment size={26} />
+              <button onClick={handleCommentBtn}>
+                <GoComment size={26} /></button>
               <p className='text-xl'>0 Comments</p>
             </div>
           </div>

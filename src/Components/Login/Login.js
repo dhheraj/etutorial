@@ -21,6 +21,7 @@ const Login = () => {
 
     signInWithPopup(auth, provider).then((userLoginData) => {
       setUserLogin(userLoginData)
+      
       localStorage.setItem("eid", userLoginData.user.email)
       localStorage.setItem("pp", userLoginData.user.photoURL)
       localStorage.setItem("name", userLoginData.user.displayName)
@@ -36,6 +37,7 @@ const Login = () => {
               emailId: userLoginData.user.email,
               photoUrl: userLoginData.user.photoURL,
               name: userLoginData.user.displayName,
+              joinedon: userLoginData.user.metadata.creationTime,
               userId: userLoginData.user.uid,
               // metadata: userLoginData.user.metadata,
 
@@ -47,7 +49,7 @@ const Login = () => {
               console.error("Error adding value: ", error);
             });
           } else {
-            console.table(querySnapshot)
+            console.log(userLoginData.user.metadata.creationTime)
             // Value already exists, handle accordingly (e.g., show error message)
             console.log("Value already exists");
           }
