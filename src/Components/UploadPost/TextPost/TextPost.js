@@ -24,6 +24,8 @@ const TextPost = () => {
     const [title, setTitle] = useState();
     const [content, setContent] = useState('');
     const [tags, setTags] = useState([]);
+
+
     // Get current date
     const currentDate = new Date();
 
@@ -57,18 +59,21 @@ const TextPost = () => {
         // console.log(tags);
         
         try {
-            
-            firestore.collection('posts').add({
+            const postData = {
                 postId: uniqueId,
                 userId: localStorage.getItem("id"),
                 postTitle: title,
                 postContent: content,
                 tags: tags,
                 postedDate: dateString,
-
-                // metadata: userLoginData.user.metadata,
-
-            })
+              };
+              
+              const postId = uniqueId; 
+              
+              const postRef = firestore.collection("posts").doc(postId);
+              
+              postRef.set(postData)
+            
                 .then((docRef) => {
                     console.log("Value added with ID: ", docRef.id);
                     setLoading(false)

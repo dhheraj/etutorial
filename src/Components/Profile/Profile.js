@@ -55,6 +55,7 @@ const Profile = () => {
 
   return (
     <div>
+      
       {/* <p className='text-xl font-bold'>{profiledata.name}</p >
       <p className='text-xl font-bold'>{profiledata.emailId}</p > */}
 

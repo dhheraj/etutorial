@@ -69,7 +69,7 @@ const ImagePost = () => {
                     .getDownloadURL()
                     .then((url) => {
                         // Store the URL in Firestore or perform other actions
-                        firestore.collection("imageposts").add({ url ,userId,title,tags,postId,postedDate});
+                        firestore.collection("imageposts").doc(postId).set({ url ,userId,title,tags,postId,postedDate});
                         console.log(url)
                     });
                     

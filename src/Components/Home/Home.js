@@ -18,9 +18,11 @@ const Home = () => {
 
     const [profiledata, setProfileData] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isSearch, setIsSearch] = useState(true);
     const [error, setError] = useState(null);
     const [search, setSearch] = useState('');
     const [data, setData] = useState('');
+    const [id, setId] = useState('');
     const [dataId, setDataId] = useState('');
     const [textmergedData, setTextMergedData] = useState([]);
     const [imagemergedData, setImageMergedData] = useState([]);
@@ -88,6 +90,7 @@ const Home = () => {
 
             const textmergedData = textpostsData.map(post => {
                 const user = usersData.find(user => user.userId === post.userId);
+
                 return { ...post, user };
             });
 
@@ -98,10 +101,18 @@ const Home = () => {
                 const user = usersData.find(user => user.userId === post.userId);
                 return { ...post, user };
             });
-            
+
             setImageMergedData(imagemergedData);
 
+            if (textmergedData.length === 0 && imagemergedData.length === 0) {
 
+                setIsSearch(true)
+                console.log("if", isSearch)
+            }
+            else {
+                setIsSearch(false)
+                console.log("else", isSearch)
+            }
             // const snapshot = await firestore.collection('posts').where('tags', 'array-contains', search).get();
             // const documentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             // setProfileData(documentsData);
@@ -156,10 +167,14 @@ const Home = () => {
         setSearch(event.target.value)
     }
     const handleClick = (doc) => {
-        setData(`/search/postpreview/${doc.postId}`)
+        setData(`/search/postpreview/${doc.userId}/${doc.postId}`)
         // localStorage.setItem("value", data)
         // console.log(data)
     };
+    const handleViewProfile = (doc) => {
+        setData(`/search/profilepreview/${doc.userId}`)
+        console.log(doc.userId)
+    }
     return (
         <div>
             <p className='flex justify-center items-center p-5 text-2xl'>Welcome, {localStorage.getItem("name")}</p>
@@ -183,50 +198,64 @@ const Home = () => {
 
                 <TabPanels>
                     <TabPanel>
-                        {
-                            textmergedData.map(doc => (
+                        <div>
+                            {
+                                textmergedData.map(doc => (
 
-                                <div key={doc.postId} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                                    <div className='mb-3 flex'>
-                                        {doc.user ? <img className='w-12 rounded-full' src={doc.user.photoUrl} /> : ""}
-                                        {doc.user ?
-                                            <div className='mt-1 ml-3 '>
-                                                <p className='text-lg'>{doc.user.name}</p>
-                                                <h6 className='text-sm'>Posted on: {doc.postedDate}</h6>
-                                            </div> : ""}
+                                    <div key={doc.postId} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                                        {doc.user ? <button onClick={() => handleViewProfile(doc)}>
+                                            <Link to={data}>
+                                                <div className='mb-3 flex'>
+                                                    <img className='w-12 rounded-full' src={doc.user.photoUrl} />
 
+                                                    <div className='mt-1 ml-3 '>
+                                                        <p className='text-lg'>{doc.user.name}</p>
+                                                        <h6 className='text-sm'>Posted on: {doc.postedDate}</h6>
+                                                    </div>
+
+                                                </div></Link>
+                                        </button> : ""}
+                                        {/* onClick={() => handleClick(doc)} */}
+                                        <div onClick={() => handleClick(doc)}>
+                                            {/* <div onClick={handleTransfer}> */}
+                                            <Link to={data}>
+                                                <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                                    {doc.postTitle}
+                                                </h5>
+                                            </Link>
+                                            {/* </div> */}
+
+                                            <p className="line-clamp-1" dangerouslySetInnerHTML={{ __html: doc.postContent }} />
+
+                                        </div>
                                     </div>
-                                    <div onClick={() => handleClick(doc)}>
-                                        {/* <div onClick={handleTransfer}> */}
-                                        <Link to={data}>
-                                            <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                                {doc.postTitle}
-                                            </h5>
-                                        </Link>
-                                        {/* </div> */}
+                                ))
+                            }
+                        </div>
 
-                                        <p className="line-clamp-1" dangerouslySetInnerHTML={{ __html: doc.postContent }} />
 
-                                    </div>
-                                </div>
-                            ))
-                        }
                     </TabPanel>
                     <TabPanel>
-                    {
+                        {
                             imagemergedData.map(doc => (
 
                                 <div key={doc.postId} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                                    <div className='mb-3 flex'>
-                                        {doc.user ? <img className='w-12 rounded-full' src={doc.user.photoUrl} /> : ""}
-                                        {doc.user ?
-                                            <div className='mt-1 ml-3 '>
-                                                <p className='text-lg'>{doc.user.name}</p>
-                                                <h6 className='text-sm'>Posted on: {doc.postedDate}</h6>
-                                            </div> : ""}
 
-                                    </div>
-                                    <div onClick={() => handleClick(doc)}>
+                                    {doc.user ? <button onClick={() => handleViewProfile(doc)}>
+                                        <Link to={data}>
+                                            <div className='mb-3 flex'>
+                                                <img className='w-12 rounded-full' src={doc.user.photoUrl} />
+
+                                                <div className='mt-1 ml-3 '>
+                                                    <p className='text-lg'>{doc.user.name}</p>
+                                                    <h6 className='text-sm'>Posted on: {doc.postedDate}</h6>
+                                                </div>
+
+                                            </div></Link>
+                                    </button> : ""}
+
+                                    {/* onClick={() => handleClick(doc)} */}
+                                    <div >
                                         {/* <div onClick={handleTransfer}> */}
                                         <Link to={data}>
                                             <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">

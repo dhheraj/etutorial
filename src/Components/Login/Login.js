@@ -10,7 +10,7 @@ const Login = () => {
   // const { authUser, setAuthUser } = useContext(AuthContext);
   const [userLogin, setUserLogin] = useState({});
   const navigate = useNavigate();
-  const [userLoginDocumentId,setUserLoginDocumentId]=useState('')
+  const [userLoginDocumentId, setUserLoginDocumentId] = useState('')
   const contextValue = {
     user: 'John',
     providerId: '123456',
@@ -21,7 +21,7 @@ const Login = () => {
 
     signInWithPopup(auth, provider).then((userLoginData) => {
       setUserLogin(userLoginData)
-      
+
       localStorage.setItem("eid", userLoginData.user.email)
       localStorage.setItem("pp", userLoginData.user.photoURL)
       localStorage.setItem("name", userLoginData.user.displayName)
@@ -29,34 +29,39 @@ const Login = () => {
 
 
       firestore.collection('userlogin').where('userId', '==', userLoginData.user.uid).get()
-      .then((querySnapshot) => {
-        // no data found then 
+        .then((querySnapshot) => {
+          // no data found then 
           if (querySnapshot.empty) {
-            // Value is unique, send it to Firestore
-            firestore.collection('userlogin').add({
+            const loginData = {
               emailId: userLoginData.user.email,
               photoUrl: userLoginData.user.photoURL,
               name: userLoginData.user.displayName,
               joinedon: userLoginData.user.metadata.creationTime,
               userId: userLoginData.user.uid,
-              // metadata: userLoginData.user.metadata,
+            }
+            const userId = userLoginData.user.uid; // Replace "your_specific_id" with the desired document ID
 
-            })
-            .then((docRef) => {
-              console.log("Value added with ID: ", docRef.id);
-            })
-            .catch((error) => {
-              console.error("Error adding value: ", error);
-            });
+            // Get a reference to the document
+            const loginRef = firestore.collection('userlogin').doc(userId);
+
+            // Add the document to Firestore with the specified ID
+            loginRef.set(loginData)
+            // Value is unique, send it to Firestore
+              .then((docRef) => {
+                console.log("Value added with ID: ", docRef.id);
+              })
+              .catch((error) => {
+                console.error("Error adding value: ", error);
+              });
           } else {
-            console.log(userLoginData.user.metadata.creationTime)
+            console.log(userLoginData.user)
             // Value already exists, handle accordingly (e.g., show error message)
             console.log("Value already exists");
           }
-      })
-      .catch((error) => {
-        console.error("Error checking uniqueness: ", error);
-      });
+        })
+        .catch((error) => {
+          console.error("Error checking uniqueness: ", error);
+        });
       // Define your data as an object
       // var data = {
       //   displayName: { name: userLoginData.user.displayName },
@@ -104,12 +109,12 @@ const Login = () => {
       // console.log(authUser)
       // console.log(authUser)
       // console.log(userLogin)
-      if(userLoginData){
+      if (userLoginData) {
 
-          // use to navigate
+        // use to navigate
         navigate("/");
-      }else{
-          console.log("err");
+      } else {
+        console.log("err");
       }
     })
 
@@ -157,12 +162,12 @@ const Login = () => {
                 Connect With
               </p>
               <ul className="-mx-2 mb-12 flex justify-center place-items-center">
-                <li className=" px-2">
+                {/* <li className=" px-2">
                   {/* <a
                     href="/#"
                     className="flex h-11 items-center justify-center rounded-md bg-[#4064AC] hover:bg-opacity-90"
                   > */}
-                  <button className=" h-11 w-20 items-center justify-center flex rounded-md bg-[#4064AC] hover:bg-opacity-90">
+                  {/* <button className=" h-11 w-20 items-center justify-center flex rounded-md bg-[#4064AC] hover:bg-opacity-90">
                     <svg
                       width="10"
                       height="20"
@@ -175,15 +180,15 @@ const Login = () => {
                         fill="white"
                       />
                     </svg>
-                  </button>
+                  </button> */}
                   {/* </a> */}
-                </li>
+                {/* </li>
                 <li className="px-2">
                   {/* <a
                     href="/#"
                     className="flex h-11 items-center justify-center rounded-md bg-[#1C9CEA] hover:bg-opacity-90"
                   > */}
-                  <button className=" h-11 w-20 items-center justify-center flex rounded-md bg-[#1C9CEA] hover:bg-opacity-90">
+                  {/* <button className=" h-11 w-20 items-center justify-center flex rounded-md bg-[#1C9CEA] hover:bg-opacity-90">
                     <svg
                       width="22"
                       height="16"
@@ -196,12 +201,12 @@ const Login = () => {
                         fill="white"
                       />
                     </svg></button>
-                </li>
+                </li>  */}
                 <li className="px-2">
                   {/* <a className="flex h-11 items-center justify-center rounded-md bg-[#D64937] hover:bg-opacity-90"> */}
                   <button
                     onClick={halndleLogin}
-                    className=" h-11 w-20 items-center justify-center flex rounded-md bg-[#D64937] hover:bg-opacity-90"
+                    className=" h-11 w-52 items-center justify-center flex rounded-md bg-[#D64937] hover:bg-opacity-90"
                   >
                     <svg
                       width="18"

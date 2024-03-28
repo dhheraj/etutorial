@@ -22,6 +22,7 @@ import ImagePost from "./Components/UploadPost/ImagePost/ImagePost";
 import {AuthContext} from "./Context/AuthContext";
 import PreviewPost from './Components/Home/PreviewPost/PreviewPost';
 import EditPost from './Components/Posts/EditPost/EditPost';
+import PreviewProfile from './Components/Home/PreviewProfile/PreviewProfile';
 
 function App({ Component }) {
   const {  authUser, setAuthUser }=useContext(AuthContext);
@@ -80,8 +81,13 @@ function App({ Component }) {
           />
           <Route
             exact
-            path="/search/postpreview/:postId"
+            path="/search/postpreview/:userId/:postId"
             element={<PreviewPost />}
+          />
+          <Route
+            exact
+            path="/search/profilepreview/:userId"
+            element={<PreviewProfile />}
           />
           <Route
           exact

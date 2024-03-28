@@ -1,23 +1,32 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from "./../../../Context/AuthContext"
 import { useParams } from 'react-router-dom';
-import { auth, provider, firestore } from "./../../../Firebase";
+import { auth, provider, firestore, firebase, app } from "./../../../Firebase";
 import { IoIosHeartEmpty } from "react-icons/io";
 import { IoBookmarkOutline } from "react-icons/io5";
 import { CiMenuKebab } from "react-icons/ci";
 import { GoPlus, GoComment } from "react-icons/go";
+import { comment } from 'postcss';
 const PreviewPost = () => {
   // const { authUser, setAuthUser, postPreview, setPostPreview } = useContext(AuthContext);
-  let { postId } = useParams();
+  let { postId, userId } = useParams();
   const [profiledata, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mergedData, setMergedData] = useState([]);
-  const [isLike, setIsLike] = useState(false);
-  const [like, setLike] = useState(0);
+  const [mergedData1, setMergedData1] = useState([]);
+  const [isLike, setIsFollow] = useState(false);
+  const [isFollow, setIsLike] = useState(false);
+  const [docid, setDocid] = useState("");
+  const [like, setLike] = useState([]);
   const [isSave, setIsSave] = useState(false);
   const [isComment, setIsComment] = useState(false);
   const [liked, setLiked] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [userData, setUserData] = useState([]);
+
+  const [commentText, setCommentText] = useState('');
+  const [comments, setComments] = useState([]);
   useEffect(() => {
     // Function to fetch a single document from Firestore
     // firestore.collection("userlogin").doc(localStorage.getItem("did")).get()
@@ -47,20 +56,26 @@ const PreviewPost = () => {
     };
 
     fetchData();
-    const fetchLikes = async () => {
-      try {
-        const postRef = firestore.collection('posts').doc(postId);
-        const doc = await postRef.get();
-        if (doc.exists) {
-          const postData = doc.data();
-          setLike(postData.likes || 0);
-        }
-      } catch (error) {
-        console.error('Error fetching likes:', error);
-      }
-    };
+    // const fetchLikes = async () => {
+    //   const snapshot = await firestore.collection('posts').where("postId", "==", postId).get();
+    //   const postData = snapshot.docs.map(doc => ({
+    //     id: doc.id, // <-- Access the document ID using doc.id
+    //     ...doc.data()
 
-    fetchLikes();
+    //   }));
+
+    //   const documentIds = postData.map(post => post.id);
+    //   console.log(documentIds);
+    //   setDocid(documentIds)
+    //   const doc = await firestore.collection('posts').doc(docid).get();
+    //   if (doc.exists) {
+    //     const data = doc.data();
+    //     setLike(data.likes || 0);
+    //     // setDislikes(data.dislikes);
+    //   }
+    // };
+
+    // fetchLikes();
 
     // .then((snapShot)=>{
     //   if(snapShot){
@@ -68,7 +83,92 @@ const PreviewPost = () => {
     //   }
     // })
     // Invoke the function
-  }, [postId]);
+    const checkLikes = async () => {
+      const followingRef = firestore.collection('likes').doc(postId).collection('likedby').doc(currentUser.uid);
+      const followingSnapshot = await followingRef.get();
+      setIsLike(followingSnapshot.exists);
+    };
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      checkLikes();
+
+    }
+    const fetchLikes = async () => {
+      const followersRef = firestore.collection('likes').doc(postId).collection('likedby');
+      const followersSnapshot = await followersRef.get();
+      const followerList = followersSnapshot.docs.map(doc => doc.id);
+      setLike(followerList);
+      setUsers(followerList.length)
+    };
+    fetchLikes();
+
+    const fetchUserData = async () => {
+      // Fetch comments data
+      const commentsSnapshot = await firestore.collection('comments').where('postId', '==', postId).get();
+      const commentsData = commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // Extract user IDs from comments
+      const userIds = commentsData.map(comment => comment.userId);
+
+      // Fetch userlogin data for each user ID
+      const userDataPromises = userIds.map(async (userId) => {
+        const userDoc = await firestore.collection('userlogin').doc(userId).get();
+        return userDoc.exists ? userDoc.data() : null;
+      });
+
+      // Wait for all promises to resolve
+      const userData = await Promise.all(userDataPromises);
+
+      // console.log(userData);
+      setUserData(userData)
+      const mergedvalue = comments.map(
+        comment => {
+          const user = userData.find(user => user.userId === comment.userId);
+          return { ...comment, user }
+        }
+      )
+      setMergedData1(mergedvalue)
+    }
+    fetchUserData()
+
+    fetchComments();
+    if (localStorage.getItem('id') === userId) {
+      setIsFollow(true)
+      console.log(userId)
+    }
+  }, []);
+  const fetchComments = async () => {
+    try {
+      const commentsSnapshot = await firestore
+        .collection('comments')
+        .where('postId', '==', postId)
+        .orderBy('timestamp', 'desc')
+        .get();
+
+      const commentsData = [];
+      const userData = [];
+
+      for (const doc of commentsSnapshot.docs) {
+        const comment = { id: doc.id, ...doc.data() };
+        commentsData.push(comment);
+
+        // Fetch user data for the comment's userId
+        const userDoc = await firestore.collection('userlogin').doc(comment.userId).get();
+        const user = userDoc.exists ? { id: userDoc.id, ...userDoc.data() } : null;
+        if (user) {
+          userData.push(user);
+        }
+      }
+
+      setComments(commentsData);
+      setUserData(userData);
+    } catch (error) {
+      console.error('Error fetching comments:', error.message);
+    }
+  };
+
+  const totalUsers = users;
   if (loading) {
     return <div className="text-center">
       <div role="status">
@@ -84,60 +184,90 @@ const PreviewPost = () => {
   if (error) {
     return <div>Error: {error}</div>;
   }
-      const handleLikeBtn = async () => {
-        try {
-          await firestore().collection('posts').doc(postId).update({
-            likes: firestore.like.increment(1)
-          });
-          setLike(like + 1);
-          setLiked(true);
-        } catch (error) {
-          console.error('Error liking post:', error);
-        }
-      };
-  
+  const handleLikeBtn = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const followingRef = firestore.collection('likes').doc(postId).collection('likedby').doc(currentUser.uid);
+      await followingRef.set({ followedAt: firebase.firestore.FieldValue.serverTimestamp() });
+
+    } setIsLike(true)
+  };
+
   const handleSaveBtn = () => {
 
   }
   const handleMenuBtn = () => {
 
   }
-  const handleCommentBtn = () => {
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
 
-  }
+  //   try {
+  //     const newComment = {
+  //       text: commentText,
+  //       timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  //     };
+
+  //     // Add the new comment to the 'comments' collection in Firestore
+  //     await firestore.collection('comments').add(newComment);
+
+  //     console.log('Comment added successfully.');
+  //   } catch (error) {
+  //     console.error('Error adding comment:', error.message);
+  //   }finally {
+  //     setLoading(false);
+  //   }
+  // };
+  const handleCommentSubmit = async () => {
+    try {
+      // Add comment to Firestore
+      await firestore.collection('comments').add({
+        postId: postId,
+        userId: localStorage.getItem('id'),
+        text: commentText,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      // Clear comment input
+      setCommentText('');
+      // Fetch comments again after adding a new comment
+      fetchComments();
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
+  };
   return (
     <div>
-      {/* {postId}<br /> */}
+      {/* <br />{postId}  */}
       {mergedData.map(item => (
         <div key={item.id} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <h1 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
             {item.postTitle}
-          </h1>{/* Post title is displaying here */}
+          </h1>
           <div className='mb-3 flex justify-between'>
 
             <div className='mb-3 flex '>
               {item.user ?
                 <img className='w-12' src={item.user.photoUrl} alt="user profile photo" />
                 : 'Error in loading user profile'
-              }{/* User profile photo is displaying here */}
+              }
 
               <div className='mt-1 ml-3 '>
                 <p className='text-lg'>
                   {item.user ? item.user.name : 'Error in loading user name'}
-                </p>{/* User name is displaying here */}
-                <h6 className='text-sm'>Posted on: {item.postedDate}</h6>{/* Posted date is displaying here */}
+                </p>
+                <h6 className='text-sm'>Posted on: {item.postedDate}</h6>
               </div>
             </div>
             <div className='mt-1'>
               <button className='flex'><GoPlus size={26} /><span className='text-lg'> Follow</span></button>
-
             </div>
           </div>
           <div className='m-5 flex'>
             <div className='flex'>
               <button onClick={handleLikeBtn}>
                 <IoIosHeartEmpty size={26} /></button>
-              <p className='text-xl'>{like}</p>
+              <p className='text-xl'>{totalUsers}</p>
             </div>
             <div>
               <button onClick={handleSaveBtn}>
@@ -149,21 +279,52 @@ const PreviewPost = () => {
             </div>
           </div>
 
-          <p dangerouslySetInnerHTML={{ __html: item.postContent }} />{/* Post content is displaying here */}
-          <div className='m-5 flex'>
-            <div className='flex'>
-              <button onClick={handleCommentBtn}>
-                <GoComment size={26} /></button>
-              <p className='text-xl'>0 Comments</p>
-            </div>
+          <p dangerouslySetInnerHTML={{ __html: item.postContent }} /><br/><hr/>
+          <h3>Comments</h3>
+      <div>
+        <input type='text'
+          value={commentText}
+          onChange={(e) => setCommentText(e.target.value)}
+          placeholder="Enter your comment..."
+        />
+        <button onClick={handleCommentSubmit}>Submit</button>
+      </div>
+
+      {/* Display comments */}
+      <div>
+        {comments.map((comment, index) => (
+          <div key={comment.id}>
+            {/* Display the user who commented */}
+            {userData[index] && (
+              <div>
+                <div class="flex items-center gap-4 p-1">
+                  <img class="w-10 h-10 rounded-full" src={userData[index].photoUrl} alt="User profile" />
+                  <div class="font-medium dark:text-white">
+                    <div>{userData[index].name}</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">{comment.timestamp && comment.timestamp.toDate().toLocaleDateString()}</div>
+                  </div>
+                </div>
+                <p className='pl-2 text-black'>{comment.text}</p><hr/>
+              </div>
+            )}
           </div>
+        ))}
+      </div>
         </div>
 
 
       ))}
 
+      
     </div>
   )
 }
 
 export default PreviewPost
+
+
+
+
+
+
+
