@@ -242,7 +242,7 @@ const PreviewPost = () => {
       {mergedData.map(item => (
         <div key={item.id} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <h1 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {item.title}d
+            {item.postTitle}
           </h1>
           <div className='mb-3 flex justify-between'>
 
