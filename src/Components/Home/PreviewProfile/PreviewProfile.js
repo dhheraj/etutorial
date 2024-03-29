@@ -65,6 +65,7 @@ const PreviewProfile = () => {
         setLoading(false)
       }
     };
+
     fetchData1();
     // Function to fetch a single document from Firestore
     // firestore.collection("userlogin").doc(localStorage.getItem("did")).get()
@@ -129,6 +130,7 @@ const PreviewProfile = () => {
       const followingRef = firestore.collection('follower').doc(userId).collection('followers').doc(currentUser.uid);
       const followingSnapshot = await followingRef.get();
       setIsFollow(followingSnapshot.exists);
+      console.log(isfollow)
     };
 
     const currentUser = auth.currentUser;
@@ -250,8 +252,8 @@ fetchFollowers();
             }
             
           </div>
-          Followers: {totalUsers}&nbsp;
-          Posts: {totalPosts}
+          {/* Followers: {totalUsers}&nbsp; */}
+          {/* Posts: {totalPosts} */}
           <h6>Email Id: {item.emailId}</h6>
           <h6>About: {item.about}</h6>
         </div>

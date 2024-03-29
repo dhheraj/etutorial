@@ -16,6 +16,7 @@ const Posts = () => {
   const [textmergedData, setTextMergedData] = useState([]);
   const [imagemergedData, setImageMergedData] = useState([]);
   const [data, setData] = useState('');
+  const [isCurrentUer,serIsCurrentUser]=useState(false)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,12 +54,17 @@ const Posts = () => {
     };
 
     fetchData();
+    if(localStorage.getItem('id')){
+      serIsCurrentUser(true)
+  }
+  
   }, []);
 const handleEditPost=(item)=>{
   setData(`/editpost/${item.postId}`)
   navigate(data)
 }
-  return (
+  return (<>
+    {isCurrentUer?
     <div>
       <h1>Posted Content</h1>
       {loading ?
@@ -194,7 +200,8 @@ const handleEditPost=(item)=>{
         </TabPanels>
       </Tabs>
       
-    </div>
+    </div>:"Please login check your uploaded post."}
+</>
   );
 };
 

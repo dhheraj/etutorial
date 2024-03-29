@@ -291,10 +291,13 @@
 
 
 
-import { Fragment } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon, PlusCircleIcon } from '@heroicons/react/24/outline'
 import { NavLink } from "react-router-dom";
+import { auth, provider, firestore, firebase, app } from "./../../Firebase";
+import { useAccordion } from '@chakra-ui/react';
+
 const navigation = [
   { name: 'Home', href: '/', current: false },
   { name: 'Posts', href: '/posts', current: false },
@@ -302,11 +305,23 @@ const navigation = [
   // { name: 'Calendar', href: '#', current: false },
 ]
 
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 export default function Example() {
+  const [isCurrentUer,serIsCurrentUser]=useState(false)
+  useEffect(()=>{
+    
+    
+    if(localStorage.getItem('id')){
+      serIsCurrentUser(true)
+    }else{
+      serIsCurrentUser(false)
+    }
+    
+  },[]);
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -379,11 +394,20 @@ export default function Example() {
                     <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                       <span className="absolute -inset-1.5" />
                       <span className="sr-only">Open user menu</span>
-                      <img 
+                        {isCurrentUer}
+                      {
+                        isCurrentUer?<img 
                         className="h-8 w-8 rounded-full "
                         src={localStorage.getItem("pp")}
                         alt="profile photot"
                       />
+                        :<div class="relative w-8 h-8 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                        <svg class="absolute w-10 h-10 text-gray-400 -left-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                    </div>
+                      
+                      
+                      }
+                      
                     </Menu.Button>
                     
                   </div>

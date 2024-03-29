@@ -32,8 +32,12 @@ const TextPost = () => {
     // Convert date to string
     const dateString = currentDate.toDateString();
     const uniqueId = uuidv4();
-
-
+    const [isCurrentUer,serIsCurrentUser]=useState(false)
+useEffect(()=>{
+    if(localStorage.getItem('id')){
+        serIsCurrentUser(true)
+    }
+})
 
 
     const handleTagsInputChange = (tags) => {
@@ -109,7 +113,8 @@ const TextPost = () => {
 
 
     // const userlogindata=useContext(UserLoginContext)
-    return (
+    return (<>
+        {isCurrentUer?
         <div className='m-20'>
             {/* {userlogindata} */}
             <p className='m-5 text-3xl font-bold text-center'>Write here to post...</p>
@@ -141,14 +146,15 @@ const TextPost = () => {
             </div>
 
             <div>
-                <p>Generated ID: {uniqueId}</p>
+                {/* <p>Generated ID: {uniqueId}</p> */}
                 {/* {content}
                 <p dangerouslySetInnerHTML={{ __html: content }} /> */}
             </div>
 
 
 
-        </div>
+        </div>:"Please login to upload your post."}
+</>
     )
 }
 

@@ -34,7 +34,7 @@ const PreviewPost = () => {
     const fetchData = async () => {
       try {
         // Query posts collection
-        const postsSnapshot = await firestore.collection('posts').where("postId", "==", postId).get();
+        const postsSnapshot = await firestore.collection('imageposts').where("postId", "==", postId).get();
         const postsData = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
         // Query users collection
@@ -242,13 +242,13 @@ const PreviewPost = () => {
       {mergedData.map(item => (
         <div key={item.id} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <h1 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {item.title}d
+            {item.postTitle}
           </h1>
           <div className='mb-3 flex justify-between'>
 
             <div className='mb-3 flex '>
               {item.user ?
-                <img className='w-12' src={item.user.photoUrl} alt="user profile photo" />
+                <img className='w-12 rounded-full' src={item.user.photoUrl} alt="user profile photo" />
                 : 'Error in loading user profile'
               }
 
@@ -279,7 +279,7 @@ const PreviewPost = () => {
             </div>
           </div>
 
-          <p dangerouslySetInnerHTML={{ __html: item.postContent }} /><br/><hr/>
+          <img src={item.url} /><br/><hr/>
           <h3>Comments</h3>
       <div>
         <input type='text'

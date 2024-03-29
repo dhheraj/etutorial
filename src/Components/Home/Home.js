@@ -1,7 +1,7 @@
 import { async } from '@firebase/util';
 import React, { useContext, useEffect, useState } from 'react'
 // import { AuthContext } from '../../Context/AuthContext';
-import { AuthContext } from "../../Context/AuthContext"
+// import { AuthContext } from "../../Context/AuthContext"
 import { auth, provider, firestore } from "./../../Firebase";
 import PreviewPost from './PreviewPost/PreviewPost';
 import { CgSearch } from "react-icons/cg";
@@ -171,6 +171,12 @@ const Home = () => {
         // localStorage.setItem("value", data)
         // console.log(data)
     };
+    const handleImagePostClick = (doc) => {
+        setData(`/search/imagepostpreview/${doc.userId}/${doc.postId}`)
+        // console.log(doc.url)
+        // localStorage.setItem("value", data)
+        // console.log(data)
+    };
     const handleViewProfile = (doc) => {
         setData(`/search/profilepreview/${doc.userId}`)
         console.log(doc.userId)
@@ -254,15 +260,15 @@ const Home = () => {
                                             </div></Link>
                                     </button> : ""}
 
-                                    {/* onClick={() => handleClick(doc)} */}
-                                    <div >
+                                    <div onClick={() => handleImagePostClick(doc)}>
+                                    
                                         {/* <div onClick={handleTransfer}> */}
                                         <Link to={data}>
                                             <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                                                 {doc.title}
                                             </h5>
                                         </Link>
-                                        {/* </div> */}
+                                        
 
                                         <img className='w-40' src={doc.url} />
 

@@ -5,18 +5,18 @@ import { auth, provider, firestore } from "../../Firebase";
 import { sendPasswordResetEmail, signInWithPopup } from "firebase/auth";
 // import 'firebase/firestore';
 
-import { AuthContext } from "../../Context/AuthContext"
+// import { AuthContext } from "../../Context/AuthContext"
 const Login = () => {
   // const { authUser, setAuthUser } = useContext(AuthContext);
   const [userLogin, setUserLogin] = useState({});
   const navigate = useNavigate();
   const [userLoginDocumentId, setUserLoginDocumentId] = useState('')
-  const contextValue = {
-    user: 'John',
-    providerId: '123456',
-    _tokenResponse: 'someToken',
-    operationType: 'login'
-  };
+  // const contextValue = {
+  //   user: 'John',
+  //   providerId: '123456',
+  //   _tokenResponse: 'someToken',
+  //   operationType: 'login'
+  // };
   function halndleLogin() {
 
     signInWithPopup(auth, provider).then((userLoginData) => {

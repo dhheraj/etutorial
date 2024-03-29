@@ -19,17 +19,13 @@ import TextPost from "./Components/UploadPost/TextPost/TextPost";
 import ImagePost from "./Components/UploadPost/ImagePost/ImagePost";
 
 
-import {AuthContext} from "./Context/AuthContext";
+// import {AuthContext} from "./Context/AuthContext";
 import PreviewPost from './Components/Home/PreviewPost/PreviewPost';
 import EditPost from './Components/Posts/EditPost/EditPost';
 import PreviewProfile from './Components/Home/PreviewProfile/PreviewProfile';
+import PreviewImagePost from './Components/Home/PreviewImagePost/PreviewImagePost';
 
 function App({ Component }) {
-  const {  authUser, setAuthUser }=useContext(AuthContext);
-  const value = {
-    ripple: false,
-};
-  // localStorage.setItem("login1",JSON.stringify(authUser))
   return (
     <>   
       {/* <p
@@ -83,6 +79,11 @@ function App({ Component }) {
             exact
             path="/search/postpreview/:userId/:postId"
             element={<PreviewPost />}
+          />
+          <Route
+            exact
+            path="/search/imagepostpreview/:userId/:postId"
+            element={<PreviewImagePost />}
           />
           <Route
             exact

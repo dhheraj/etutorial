@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [comments, setComments] = useState([]);
   const [mergedData1, setMergedData1] = useState([]);
   const [userData, setUserData] = useState([]);
+  const [isCurrentUer,serIsCurrentUser]=useState(false)
   useEffect(() => {
     // Fetch followers
     const fetchFollowers = async () => {
@@ -237,6 +238,10 @@ const Dashboard = () => {
     fetchUserData()
 
     fetchComments();
+    if(localStorage.getItem('id')){
+      serIsCurrentUser(true)
+  }
+  
   }, []);
   const fetchComments = async () => {
     try {
@@ -292,7 +297,8 @@ const Dashboard = () => {
   // const totalComments = comments.length;
   const totalUsers = users.length;
   // const totalLikes = liked.length;
-  return (
+  return (<>
+    {isCurrentUer? 
     <div>
       <h2>Followers: {totalUsers}</h2>
       {/* {data.map(doc=>
@@ -355,7 +361,8 @@ const Dashboard = () => {
           <p>Likes: {fetchLikesForPost(post.id)}</p>
         </div>
       ))} */}
-    </div>
+    </div>:"Please login to check your Dashboard."}
+</>
   )
 }
 
