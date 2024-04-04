@@ -39,7 +39,12 @@ const PreviewPost = () => {
           const user = usersData.find(user => user.userId === post.userId);
           return { ...post, user };
         });
-
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const followingRef = firestore.collection('follower').doc(userId).collection('followers').doc(currentUser.uid);
+          const followingSnapshot = await followingRef.get();
+          setIsFollowing(followingSnapshot.exists);
+        }
         setMergedData(mergedData);
       } catch (error) {
         setError('Error fetching document: ' + error.message);
@@ -49,45 +54,25 @@ const PreviewPost = () => {
     };
 
     fetchData();
-    const checkFollowing = async () => {
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        const followingRef = firestore.collection('follower').doc(userId).collection('followers').doc(currentUser.uid);
-        const followingSnapshot = await followingRef.get();
-        setIsFollowing(followingSnapshot.exists);
-      }
-    };
-    checkFollowing();
 
-    const fetchFollowers = async () => {
-      const followersRef = firestore.collection('follower').doc(userId).collection('followers');
-      const followersSnapshot = await followersRef.get();
-      const followerList = followersSnapshot.docs.map(doc => doc.id);
-      setFollowers(followerList);
-      setUsers(followerList.length);
-    };
-
-    fetchFollowers();
     fetchData();
     fetchLikes();
     fetchComments();
   }, [postId, userId]);
   const handleFollow = async () => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const followingRef = firestore.collection('follower').doc(userId).collection('followers').doc(currentUser.uid);
-      await followingRef.set({ followedAt: firebase.firestore.FieldValue.serverTimestamp() });
-      setIsFollowing(true); // Update isFollowing state after following
-      // console.log(isFollowing)
-    }
-  };
-  
-  const handleUnfollow = async () => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const followingRef = firestore.collection('follower').doc(userId).collection('followers').doc(currentUser.uid);
-      await followingRef.delete();
-      setIsFollowing(false); // Update isFollowing state after unfollowing
+    try {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const followingRef = firestore.collection('follower').doc(userId).collection('followers').doc(currentUser.uid);
+        if (!isFollowing) {
+          await followingRef.set({ followedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        } else {
+          await followingRef.delete();
+        }
+        setIsFollowing(!isFollowing);
+      }
+    } catch (error) {
+      console.error('Error handling follow:', error);
     }
   };
   const handleCommentSubmit = async () => {
@@ -196,9 +181,10 @@ const PreviewPost = () => {
               </div>
             </div>
             <div className='mt-1'>
-            <button className='flex' onClick={isFollowing ? handleUnfollow : handleFollow}>
-    <span className='text-lg'>{isFollowing ? 'Unfollow' : 'Follow'}</span>
-  </button>
+            {/* Follow Button */}
+      <button onClick={handleFollow}>
+        {isFollowing ? 'Unfollow' : 'Follow'}
+      </button>
             </div>
           </div>
           <div className='mt-1'>
@@ -259,3 +245,4 @@ const PreviewPost = () => {
 };
 
 export default PreviewPost;
+
