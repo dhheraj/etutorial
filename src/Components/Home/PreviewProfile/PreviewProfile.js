@@ -180,19 +180,12 @@ fetchFollowers();
   if (error) {
     return <div>Error: {error}</div>;
   }
-  const handleLikeBtn = async () => {
+  // const handleSaveBtn = () => {
 
-  };
+  // }
+  // const handleMenuBtn = () => {
 
-  const handleSaveBtn = () => {
-
-  }
-  const handleMenuBtn = () => {
-
-  }
-  const handleCommentBtn = () => {
-
-  }
+  // }
   const handleFollow=async()=>{
     const currentUser = auth.currentUser;
     if (currentUser) {
