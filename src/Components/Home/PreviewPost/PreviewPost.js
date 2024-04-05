@@ -3,10 +3,9 @@ import { useParams } from 'react-router-dom';
 import { auth, firestore, firebase } from './../../../Firebase';
 import { IoIosHeartEmpty } from 'react-icons/io';
 import { IoHeart } from "react-icons/io5";
-import { IoBookmarkOutline } from 'react-icons/io5';
+import { IoBookmark,IoBookmarkOutline } from 'react-icons/io5';
 import { CiMenuKebab } from 'react-icons/ci';
 import { GoPlus, GoComment } from 'react-icons/go';
-
 const PreviewPost = () => {
   const { postId, userId } = useParams();
   const [profiledata, setProfileData] = useState(null);
@@ -14,7 +13,9 @@ const PreviewPost = () => {
   const [error, setError] = useState(null);
   const [mergedData, setMergedData] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
+  const [savedCount, setSavedCount] = useState(0);
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState([]);
   const [userData, setUserData] = useState([]);
@@ -53,10 +54,11 @@ const PreviewPost = () => {
       }
     };
 
-    fetchData();
+    // fetchData();
 
     fetchData();
     fetchLikes();
+    fetchSavepost();
     fetchComments();
   }, [postId, userId]);
   const handleFollow = async () => {
@@ -107,16 +109,45 @@ const PreviewPost = () => {
       console.error('Error fetching likes:', error.message);
     }
   };
+  const fetchSavepost = async () => {
+    try {
+      const likesSnapshot = await firestore.collection('saved').doc(postId).collection('savedby').get();
+      const savedCount = likesSnapshot.docs.length;
+      setSavedCount(savedCount);
 
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const saved = likesSnapshot.docs.some(doc => doc.id === currentUser.uid);
+        setIsSaved(saved);
+      }
+    } catch (error) {
+      console.error('Error fetching likes:', error.message);
+    }
+  };
+
+  const handleSave = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const likeRef = firestore.collection('saved').doc(postId).collection('savedby').doc(currentUser.uid);
+      if (isSaved) {
+        await likeRef.delete();
+         setSavedCount(prevCount => prevCount - 1);
+      } else {
+        await likeRef.set({ likedAt: firebase.firestore.FieldValue.serverTimestamp() });
+         setSavedCount(prevCount => prevCount + 1);
+      }
+      setIsSaved(!isSaved);
+    }
+  };
   const handleLike = async () => {
     const currentUser = auth.currentUser;
     if (currentUser) {
-      const likeRef = firestore.collection('likes').doc(postId).collection('likedby').doc(currentUser.uid);
+      const saveRef = firestore.collection('likes').doc(postId).collection('likedby').doc(currentUser.uid);
       if (isLiked) {
-        await likeRef.delete();
+        await saveRef.delete();
         setLikesCount(prevCount => prevCount - 1);
       } else {
-        await likeRef.set({ likedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        await saveRef.set({ likedAt: firebase.firestore.FieldValue.serverTimestamp() });
         setLikesCount(prevCount => prevCount + 1);
       }
       setIsLiked(!isLiked);
@@ -182,12 +213,15 @@ const PreviewPost = () => {
             </div>
             <div className='mt-1'>
             {/* Follow Button */}
-      <button onClick={handleFollow}>
-        {isFollowing ? 'Unfollow' : 'Follow'}
-      </button>
+            {
+              localStorage.getItem("id")===userId?"": <button onClick={handleFollow}>
+              {isFollowing ? 'Unfollow' : 'Follow'}
+            </button>
+            }
+     
             </div>
           </div>
-          <div className='mt-1'>
+          <div className='mt-1 flex'>
               <button className='flex' onClick={handleLike}>
                 {isLiked ? (
                   <>
@@ -198,6 +232,20 @@ const PreviewPost = () => {
                   <>
                     <IoIosHeartEmpty size={24} />
                     <span className='text-lg'>{likesCount}</span>
+                  </>
+                )}
+              </button>
+              {/* Save post btn  */}
+              <button className='flex' onClick={handleSave}>
+                {isSaved ? (
+                  <>
+                    <IoBookmark size={24} color="black" />
+                    <span className='text-lg'>{savedCount}</span>
+                  </>
+                ) : (
+                  <>
+                    <IoBookmarkOutline size={24} />
+                    <span className='text-lg'>{savedCount}</span>
                   </>
                 )}
               </button>

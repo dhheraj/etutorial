@@ -322,6 +322,9 @@ export default function Example() {
     }
     
   },[]);
+   const hnadleLogout=()=>{
+    localStorage.clear()
+   }
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -425,13 +428,13 @@ export default function Example() {
                         {({ active }) => (
                           <a
                             href="/profile"
-                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm w-full text-gray-700')}
                           >
                             Your Profile
                           </a>
                         )}
                       </Menu.Item>
-                      <Menu.Item>
+                      {/* <Menu.Item>
                         {({ active }) => (
                           <a
                             href="#"
@@ -440,15 +443,15 @@ export default function Example() {
                             Settings
                           </a>
                         )}
-                      </Menu.Item>
+                      </Menu.Item> */}
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="/logout"
-                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                          <button
+                          onClick={hnadleLogout}
+                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm w-full text-gray-700')}
                           >
                             Logout
-                          </a>
+                          </button>
                         )}
                       </Menu.Item>
                     </Menu.Items>

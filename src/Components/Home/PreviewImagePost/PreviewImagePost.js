@@ -2,8 +2,9 @@ import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from "./../../../Context/AuthContext"
 import { useParams } from 'react-router-dom';
 import { auth, provider, firestore, firebase, app } from "./../../../Firebase";
-import { IoIosHeartEmpty } from "react-icons/io";
-import { IoBookmarkOutline } from "react-icons/io5";
+import { IoIosHeartEmpty } from 'react-icons/io';
+import { IoHeart } from "react-icons/io5";
+import { IoBookmark,IoBookmarkOutline } from 'react-icons/io5';
 import { CiMenuKebab } from "react-icons/ci";
 import { GoPlus, GoComment } from "react-icons/go";
 import { comment } from 'postcss';
@@ -24,9 +25,13 @@ const PreviewPost = () => {
   const [liked, setLiked] = useState(false);
   const [users, setUsers] = useState([]);
   const [userData, setUserData] = useState([]);
-
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [savedCount, setSavedCount] = useState(0);
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState([]);
+  const [isFollowing, setIsFollowing] = useState(false);
   useEffect(() => {
     // Function to fetch a single document from Firestore
     // firestore.collection("userlogin").doc(localStorage.getItem("did")).get()
@@ -46,7 +51,12 @@ const PreviewPost = () => {
           const user = usersData.find(user => user.userId === post.userId);
           return { ...post, user };
         });
-
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const followingRef = firestore.collection('follower').doc(userId).collection('followers').doc(currentUser.uid);
+          const followingSnapshot = await followingRef.get();
+          setIsFollowing(followingSnapshot.exists);
+        }
         setMergedData(mergedData);
       } catch (error) {
         setError('Error fetching document: ' + error.message);
@@ -56,6 +66,7 @@ const PreviewPost = () => {
     };
 
     fetchData();
+    
     // const fetchLikes = async () => {
     //   const snapshot = await firestore.collection('posts').where("postId", "==", postId).get();
     //   const postData = snapshot.docs.map(doc => ({
@@ -83,25 +94,6 @@ const PreviewPost = () => {
     //   }
     // })
     // Invoke the function
-    const checkLikes = async () => {
-      const followingRef = firestore.collection('likes').doc(postId).collection('likedby').doc(currentUser.uid);
-      const followingSnapshot = await followingRef.get();
-      setIsLike(followingSnapshot.exists);
-    };
-
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      checkLikes();
-
-    }
-    const fetchLikes = async () => {
-      const followersRef = firestore.collection('likes').doc(postId).collection('likedby');
-      const followersSnapshot = await followersRef.get();
-      const followerList = followersSnapshot.docs.map(doc => doc.id);
-      setLike(followerList);
-      setUsers(followerList.length)
-    };
-    fetchLikes();
 
     const fetchUserData = async () => {
       // Fetch comments data
@@ -131,12 +123,46 @@ const PreviewPost = () => {
       setMergedData1(mergedvalue)
     }
     fetchUserData()
-
-    fetchComments();
+  
+    
     if (localStorage.getItem('id') === userId) {
       setIsFollow(true)
       console.log(userId)
     }
+    
+    const fetchLikes = async () => {
+      try {
+        const likesSnapshot = await firestore.collection('likes').doc(postId).collection('likedby').get();
+        const likesCount = likesSnapshot.docs.length;
+        setLikesCount(likesCount);
+  
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const liked = likesSnapshot.docs.some(doc => doc.id === currentUser.uid);
+          setIsLiked(liked);
+        }
+      } catch (error) {
+        console.error('Error fetching likes:', error.message);
+      }
+    };
+    const fetchSavepost = async () => {
+      try {
+        const likesSnapshot = await firestore.collection('saved').doc(postId).collection('savedby').get();
+        const savedCount = likesSnapshot.docs.length;
+        setSavedCount(savedCount);
+  
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const saved = likesSnapshot.docs.some(doc => doc.id === currentUser.uid);
+          setIsSaved(saved);
+        }
+      } catch (error) {
+        console.error('Error fetching likes:', error.message);
+      }
+    };
+    fetchLikes();
+    fetchSavepost();
+    fetchComments();
   }, []);
   const fetchComments = async () => {
     try {
@@ -184,21 +210,6 @@ const PreviewPost = () => {
   if (error) {
     return <div>Error: {error}</div>;
   }
-  const handleLikeBtn = async () => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const followingRef = firestore.collection('likes').doc(postId).collection('likedby').doc(currentUser.uid);
-      await followingRef.set({ followedAt: firebase.firestore.FieldValue.serverTimestamp() });
-
-    } setIsLike(true)
-  };
-
-  const handleSaveBtn = () => {
-
-  }
-  const handleMenuBtn = () => {
-
-  }
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
   //   setLoading(true);
@@ -219,6 +230,51 @@ const PreviewPost = () => {
   //     setLoading(false);
   //   }
   // };
+ 
+  const handleFollow = async () => {
+    try {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const followingRef = firestore.collection('follower').doc(userId).collection('followers').doc(currentUser.uid);
+        if (!isFollowing) {
+          await followingRef.set({ followedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        } else {
+          await followingRef.delete();
+        }
+        setIsFollowing(!isFollowing);
+      }
+    } catch (error) {
+      console.error('Error handling follow:', error);
+    }
+  };
+  const handleSave = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const likeRef = firestore.collection('saved').doc(postId).collection('savedby').doc(currentUser.uid);
+      if (isSaved) {
+        await likeRef.delete();
+         setSavedCount(prevCount => prevCount - 1);
+      } else {
+        await likeRef.set({ likedAt: firebase.firestore.FieldValue.serverTimestamp() });
+         setSavedCount(prevCount => prevCount + 1);
+      }
+      setIsSaved(!isSaved);
+    }
+  };
+  const handleLike = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const saveRef = firestore.collection('likes').doc(postId).collection('likedby').doc(currentUser.uid);
+      if (isLiked) {
+        await saveRef.delete();
+        setLikesCount(prevCount => prevCount - 1);
+      } else {
+        await saveRef.set({ likedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        setLikesCount(prevCount => prevCount + 1);
+      }
+      setIsLiked(!isLiked);
+    }
+  };
   const handleCommentSubmit = async () => {
     try {
       // Add comment to Firestore
@@ -260,23 +316,41 @@ const PreviewPost = () => {
               </div>
             </div>
             <div className='mt-1'>
-              <button className='flex'><GoPlus size={26} /><span className='text-lg'> Follow</span></button>
+            {
+              localStorage.getItem("id")===userId?"": <button onClick={handleFollow}>
+              {isFollowing ? 'Unfollow' : 'Follow'}
+            </button>
+            }
             </div>
           </div>
           <div className='m-5 flex'>
-            <div className='flex'>
-              <button onClick={handleLikeBtn}>
-                <IoIosHeartEmpty size={26} /></button>
-              <p className='text-xl'>{totalUsers}</p>
-            </div>
-            <div>
-              <button onClick={handleSaveBtn}>
-                <IoBookmarkOutline size={26} /></button>
-            </div>
-            <div>
-              <button onClick={handleMenuBtn}>
-                <CiMenuKebab size={26} /></button>
-            </div>
+          <button className='flex' onClick={handleLike}>
+                {isLiked ? (
+                  <>
+                    <IoHeart size={24} color="#ff0000" />
+                    <span className='text-lg'>{likesCount}</span>
+                  </>
+                ) : (
+                  <>
+                    <IoIosHeartEmpty size={24} />
+                    <span className='text-lg'>{likesCount}</span>
+                  </>
+                )}
+              </button>
+              {/* Save post btn  */}
+              <button className='flex' onClick={handleSave}>
+                {isSaved ? (
+                  <>
+                    <IoBookmark size={24} color="black" />
+                    <span className='text-lg'>{savedCount}</span>
+                  </>
+                ) : (
+                  <>
+                    <IoBookmarkOutline size={24} />
+                    <span className='text-lg'>{savedCount}</span>
+                  </>
+                )}
+              </button>
           </div>
 
           <img src={item.url} /><br/><hr/>

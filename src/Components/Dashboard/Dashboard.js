@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import { auth, provider, firestore, firebase } from "./../../Firebase";
 import { accordion } from '@material-tailwind/react';
-
+import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 const Dashboard = () => {
   const [followers, setFollowers] = useState([]);
   const [users, setUsers] = useState([]);
@@ -17,7 +17,11 @@ const Dashboard = () => {
   const [comments, setComments] = useState([]);
   const [mergedData1, setMergedData1] = useState([]);
   const [userData, setUserData] = useState([]);
-  const [isCurrentUer,serIsCurrentUser]=useState(false)
+  const [isCurrentUer, serIsCurrentUser] = useState(false)
+  const [totalLikes, setTotalLikes] = useState(0);
+  const [totalSaved, setTotalSaved] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   useEffect(() => {
     // Fetch followers
     const fetchFollowers = async () => {
@@ -25,7 +29,7 @@ const Dashboard = () => {
       const followersSnapshot = await followersRef.get();
       const followerList = followersSnapshot.docs.map(doc => doc.id);
       setFollowers(followerList);
-      console.log(followers)
+      // console.log(followers)
       // Fetch user data for each follower
       const userDataPromises = followerList.map(async (followerId) => {
         // console.log(followerId)
@@ -238,10 +242,68 @@ const Dashboard = () => {
     fetchUserData()
 
     fetchComments();
-    if(localStorage.getItem('id')){
+    if (localStorage.getItem('id')) {
       serIsCurrentUser(true)
-  }
-  
+    }
+
+
+    const fetchTotalLikes = async () => {
+      try {
+        let total = 0;
+
+        // Query the posts collection where userId matches
+        const postsSnapshot = await firestore.collection('posts').where('userId', '==', localStorage.getItem('id')).get();
+
+        // Iterate through each post
+        for (const postDoc of postsSnapshot.docs) {
+          // Get the post ID
+          const postId = postDoc.id;
+
+          // Query the 'likedby' subcollection of each post
+          const likesSnapshot = await firestore.collection('likes').doc(postId).collection('likedby').get();
+          // console.log(postId)
+          // Increment the total by the number of likes for this post
+          total += likesSnapshot.size;
+        }
+
+        setTotalLikes(total);
+      } catch (error) {
+        setError('Error fetching total likes: ' + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTotalLikes();
+
+    const fetchTotalSaved = async () => {
+      try {
+        let total = 0;
+
+        // Query the posts collection where userId matches
+        const postsSnapshot = await firestore.collection('posts').where('userId', '==', localStorage.getItem('id')).get();
+
+        // Iterate through each post
+        for (const postDoc of postsSnapshot.docs) {
+          // Get the post ID
+          const postId = postDoc.id;
+
+          // Query the 'likedby' subcollection of each post
+          const savedSnapshot = await firestore.collection('saved').doc(postId).collection('savedby').get();
+          // console.log(postId)
+          // Increment the total by the number of likes for this post
+          total += savedSnapshot.size;
+        }
+
+        setTotalSaved(total);
+      } catch (error) {
+        setError('Error fetching total likes: ' + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTotalSaved();
   }, []);
   const fetchComments = async () => {
     try {
@@ -296,73 +358,113 @@ const Dashboard = () => {
   // Calculate the total likes for the current user's posts
   // const totalComments = comments.length;
   const totalUsers = users.length;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
   // const totalLikes = liked.length;
   return (<>
-    {isCurrentUer? 
-    <div>
-      <h2>Followers: {totalUsers}</h2>
-      {/* {data.map(doc=>
-  <div key={doc.id}>
-    {doc.postId}
-  </div>
-)} */}
+    {isCurrentUer ?
+      <Tabs  align='center' variant='enclosed'>
+        <TabList >
+          <Tab>Follower</Tab>
+          <Tab>Likes</Tab>
+          <Tab>Save</Tab>
+          {/* <Tab>Three</Tab> */}
+        </TabList>
 
-      {users.map((user, index) => (
-        <div key={index}>
+        <TabPanels align='start'>
+          <TabPanel>
+          <h2>Followers: {totalUsers}</h2>
+            <div>
+              {users.map((user, index) => (
+                <div key={index}>
 
-          <ul class="max-w-md divide-y divide-gray-200 dark:divide-gray-700">
-            <li class="pb-3 sm:pb-1">
-              <div class="flex items-center space-x-4 rtl:space-x-reverse">
-                <div class="flex-shrink-0">
-                  <img class="w-8 h-8 rounded-full" src={user.photoUrl} alt="Neil image" />
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                    {user.name}
-                  </p>
-                  {/* <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                  <ul class="max-w-md divide-y divide-gray-200 dark:divide-gray-700">
+                    <li class="pb-3 sm:pb-1">
+                      <div class="flex items-center space-x-4 rtl:space-x-reverse">
+                        <div class="flex-shrink-0">
+                          <img class="w-8 h-8 rounded-full" src={user.photoUrl} alt="Neil image" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                            {user.name}
+                          </p>
+                          {/* <p class="text-sm text-gray-500 truncate dark:text-gray-400">
                 email@flowbite.com
               </p> */}
-                </div>
-                {/* <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                        </div>
+                        {/* <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
               $320
             </div> */}
-              </div>
-            </li>
-          </ul>
-        </div>
-
-
-      ))}
-      {/* Comments {totalComments} */}
-      {comments.map((comment, index) => (
-        <div key={comment.id}>
-          {/* Display the user who commented */}
-          {userData[index] && (
-            <div>
-              <div class="flex items-center gap-4 p-1">
-                <img class="w-10 h-10 rounded-full" src={userData[index].photoUrl} alt="User profile" />
-                <div class="font-medium dark:text-white">
-                  <div>{userData[index].name}</div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400">{comment.timestamp && comment.timestamp.toDate().toLocaleDateString()}</div>
+                      </div>
+                    </li>
+                  </ul>
                 </div>
-              </div>
-              <p className='pl-2 text-black'>{comment.text}</p><hr />
+
+
+              ))}
             </div>
-          )}
-        </div>
-      ))}
-      {/* <h2>Likes: {totalLikes}</h2> */}
-      {/* <h2>Posts with Total Likes:</h2>
-      {posts.map(post => (
-        <div key={post.id}>
-          <p>Post ID: {post.id}</p>
-          <p>Content: {post.content}</p>
-          <p>Likes: {fetchLikesForPost(post.id)}</p>
-        </div>
-      ))} */}
-    </div>:"Please login to check your Dashboard."}
-</>
+
+
+          </TabPanel>
+          <TabPanel>
+            <h2>Total Likes on User's Posts</h2>
+            <p>Total likes: {totalLikes}</p>
+          </TabPanel>
+          <TabPanel>
+            <h2>Total Save on User's Posts</h2>
+            <p>Total saved: {totalSaved}</p>
+          </TabPanel>
+          {/* <TabPanel>
+            <p>three!</p>
+        </TabPanel> */}
+        </TabPanels>
+      </Tabs>
+      // <div>
+      // {/* //   <h2>Followers: {totalUsers}</h2>
+      //      {data.map(doc=>
+      //   <div key={doc.id}>
+      //     {doc.postId}
+      //   </div>
+      // )} */}
+
+
+      // {/* Comments {totalComments} */}
+      // {/* {comments.map((comment, index) => (
+      //   <div key={comment.id}> */}
+      //     {/* Display the user who commented */}
+      //     {/* {userData[index] && (
+      //       <div>
+      //         <div class="flex items-center gap-4 p-1">
+      //           <img class="w-10 h-10 rounded-full" src={userData[index].photoUrl} alt="User profile" />
+      //           <div class="font-medium dark:text-white">
+      //             <div>{userData[index].name}</div>
+      //             <div class="text-sm text-gray-500 dark:text-gray-400">{comment.timestamp && comment.timestamp.toDate().toLocaleDateString()}</div>
+      //           </div>
+      //         </div>
+      //         <p className='pl-2 text-black'>{comment.text}</p><hr />
+      //       </div>
+      //     )}
+      //   </div>
+      // ))}
+      // <h2>Total Likes on User's Posts</h2>
+      // <p>Total likes: {totalLikes}</p> */}
+      // {/* <h2>Likes: {totalLikes}</h2> */}
+      // {/* <h2>Posts with Total Likes:</h2>
+      // {posts.map(post => (
+      //   <div key={post.id}>
+      //     <p>Post ID: {post.id}</p>
+      //     <p>Content: {post.content}</p>
+      //     <p>Likes: {fetchLikesForPost(post.id)}</p>
+      //   </div>
+      // ))} */}
+      // </div>
+      : "Please login to check your Dashboard."}
+  </>
   )
 }
 
