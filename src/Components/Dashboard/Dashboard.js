@@ -18,8 +18,10 @@ const Dashboard = () => {
   const [mergedData1, setMergedData1] = useState([]);
   const [userData, setUserData] = useState([]);
   const [isCurrentUer, serIsCurrentUser] = useState(false)
-  const [totalLikes, setTotalLikes] = useState(0);
-  const [totalSaved, setTotalSaved] = useState(0);
+  const [totalTextPostLikes, setTotalTextPostLikes] = useState(0);
+  const [totalTextPostSaved, setTotalTextPostSaved] = useState(0);
+  const [totalImagePostLikes, setTotalImagePostLikes] = useState(0);
+  const [totalImagePostSaved, setTotalImagePostSaved] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   useEffect(() => {
@@ -241,13 +243,13 @@ const Dashboard = () => {
     }
     fetchUserData()
 
-    fetchComments();
+    // fetchComments();
     if (localStorage.getItem('id')) {
       serIsCurrentUser(true)
     }
 
 
-    const fetchTotalLikes = async () => {
+    const fetchTotalTextPostLikes = async () => {
       try {
         let total = 0;
 
@@ -266,7 +268,7 @@ const Dashboard = () => {
           total += likesSnapshot.size;
         }
 
-        setTotalLikes(total);
+        setTotalTextPostLikes(total);
       } catch (error) {
         setError('Error fetching total likes: ' + error.message);
       } finally {
@@ -274,9 +276,9 @@ const Dashboard = () => {
       }
     };
 
-    fetchTotalLikes();
+    fetchTotalTextPostLikes();
 
-    const fetchTotalSaved = async () => {
+    const fetchTotalTextPostSaved = async () => {
       try {
         let total = 0;
 
@@ -295,7 +297,7 @@ const Dashboard = () => {
           total += savedSnapshot.size;
         }
 
-        setTotalSaved(total);
+        setTotalTextPostSaved(total);
       } catch (error) {
         setError('Error fetching total likes: ' + error.message);
       } finally {
@@ -303,37 +305,96 @@ const Dashboard = () => {
       }
     };
 
-    fetchTotalSaved();
-  }, []);
-  const fetchComments = async () => {
-    try {
-      const commentsSnapshot = await firestore
-        .collection('comments')
-        .where('userId', '==', localStorage.getItem('id'))
-        .orderBy('timestamp', 'desc')
-        .get();
+    fetchTotalTextPostSaved();
 
-      const commentsData = [];
-      const userData = [];
 
-      for (const doc of commentsSnapshot.docs) {
-        const comment = { id: doc.id, ...doc.data() };
-        commentsData.push(comment);
+    const fetchTotalImagePostLikes = async () => {
+      try {
+        let total = 0;
 
-        // Fetch user data for the comment's userId
-        const userDoc = await firestore.collection('userlogin').doc(comment.userId).get();
-        const user = userDoc.exists ? { id: userDoc.id, ...userDoc.data() } : null;
-        if (user) {
-          userData.push(user);
+        // Query the posts collection where userId matches
+        const postsSnapshot = await firestore.collection('imageposts').where('userId', '==', localStorage.getItem('id')).get();
+
+        // Iterate through each post
+        for (const postDoc of postsSnapshot.docs) {
+          // Get the post ID
+          const postId = postDoc.id;
+
+          // Query the 'likedby' subcollection of each post
+          const likesSnapshot = await firestore.collection('likes').doc(postId).collection('likedby').get();
+          // console.log(postId)
+          // Increment the total by the number of likes for this post
+          total += likesSnapshot.size;
         }
-      }
 
-      setComments(commentsData);
-      setUserData(userData);
-    } catch (error) {
-      console.error('Error fetching comments:', error.message);
-    }
-  };
+        setTotalImagePostLikes(total);
+      } catch (error) {
+        setError('Error fetching total likes: ' + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTotalImagePostLikes();
+
+    const fetchTotalImagePostSaved = async () => {
+      try {
+        let total = 0;
+
+        // Query the posts collection where userId matches
+        const postsSnapshot = await firestore.collection('imageposts').where('userId', '==', localStorage.getItem('id')).get();
+
+        // Iterate through each post
+        for (const postDoc of postsSnapshot.docs) {
+          // Get the post ID
+          const postId = postDoc.id;
+
+          // Query the 'likedby' subcollection of each post
+          const savedSnapshot = await firestore.collection('saved').doc(postId).collection('savedby').get();
+          // console.log(postId)
+          // Increment the total by the number of likes for this post
+          total += savedSnapshot.size;
+        }
+
+        setTotalImagePostSaved(total);
+      } catch (error) {
+        setError('Error fetching total likes: ' + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTotalImagePostSaved();
+  }, []);
+  // const fetchComments = async () => {
+  //   try {
+  //     const commentsSnapshot = await firestore
+  //       .collection('comments')
+  //       .where('userId', '==', localStorage.getItem('id'))
+  //       .orderBy('timestamp', 'desc')
+  //       .get();
+
+  //     const commentsData = [];
+  //     const userData = [];
+
+  //     for (const doc of commentsSnapshot.docs) {
+  //       const comment = { id: doc.id, ...doc.data() };
+  //       commentsData.push(comment);
+
+  //       // Fetch user data for the comment's userId
+  //       const userDoc = await firestore.collection('userlogin').doc(comment.userId).get();
+  //       const user = userDoc.exists ? { id: userDoc.id, ...userDoc.data() } : null;
+  //       if (user) {
+  //         userData.push(user);
+  //       }
+  //     }
+
+  //     setComments(commentsData);
+  //     setUserData(userData);
+  //   } catch (error) {
+  //     console.error('Error fetching comments:', error.message);
+  //   }
+  // };
   // const fetchLikesForPost = async (postId) => {
   //   try {
   //     // Construct the reference to the 'likedby' subcollection of the specified post
@@ -413,11 +474,11 @@ const Dashboard = () => {
           </TabPanel>
           <TabPanel>
             <h2>Total Likes on User's Posts</h2>
-            <p>Total likes: {totalLikes}</p>
+            <p>Total likes: {totalTextPostLikes+totalImagePostLikes}</p>
           </TabPanel>
           <TabPanel>
             <h2>Total Save on User's Posts</h2>
-            <p>Total saved: {totalSaved}</p>
+            <p>Total saved: {totalTextPostSaved+totalImagePostSaved}</p>
           </TabPanel>
           {/* <TabPanel>
             <p>three!</p>
