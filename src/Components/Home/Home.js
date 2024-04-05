@@ -276,7 +276,14 @@ const Home = () => {
                                                 </Link>
 
 
-                                                <img className='w-40' src={doc.url} />
+                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                    <div>
+                                                        <img class="h-auto max-w-full rounded-lg" src={doc.url} />
+                                                    </div>
+                                                </div>
+
+
+                                                {/* <img className='w-40' src={doc.url} /> */}
 
                                             </div>
                                         </div>
@@ -296,7 +303,7 @@ const Home = () => {
 
             {/* {
                 loading ? */}
-                    {/* //     <div class="border border-blue-300 shadow rounded-md p-4 m-4 max-w-4/5 w-4/5 mx-auto ">
+            {/* //     <div class="border border-blue-300 shadow rounded-md p-4 m-4 max-w-4/5 w-4/5 mx-auto ">
                     //     <div class="animate-pulse flex space-x-4">
                     //         <div class="rounded-full bg-slate-200 h-10 w-10 bg-black"></div>
                     //         <div class="flex-1 space-y-6 py-1">

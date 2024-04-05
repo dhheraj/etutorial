@@ -4,6 +4,7 @@ import { auth, firestore, firebase } from './../../../Firebase';
 import { IoIosHeartEmpty } from 'react-icons/io';
 import { IoHeart } from "react-icons/io5";
 import { IoBookmark,IoBookmarkOutline } from 'react-icons/io5';
+import { RiUserFollowLine,RiUserUnfollowLine  } from "react-icons/ri";
 import { CiMenuKebab } from 'react-icons/ci';
 import { GoPlus, GoComment } from 'react-icons/go';
 const PreviewPost = () => {
@@ -16,6 +17,7 @@ const PreviewPost = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [savedCount, setSavedCount] = useState(0);
+  const [commentsCount, setCommentsCount] = useState(0);
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState([]);
   const [userData, setUserData] = useState([]);
@@ -179,6 +181,8 @@ const PreviewPost = () => {
 
       setComments(commentsData);
       setUserData(userData);
+      setCommentsCount(commentsData.length)
+      // console.log(commentsData.length)
     } catch (error) {
       console.error('Error fetching comments:', error.message);
     }
@@ -215,7 +219,7 @@ const PreviewPost = () => {
             {/* Follow Button */}
             {
               localStorage.getItem("id")===userId?"": <button onClick={handleFollow}>
-              {isFollowing ? 'Unfollow' : 'Follow'}
+              {isFollowing ? <div className='flex rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'><RiUserUnfollowLine size={26} /><span className='text-lg'> Unfollow</span></div> : <div className='flex rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'><RiUserFollowLine size={26} /><span className='text-lg'> Follow</span></div>}
             </button>
             }
      
@@ -254,7 +258,7 @@ const PreviewPost = () => {
              Other elements
           </div> */}
           <p dangerouslySetInnerHTML={{ __html: item.postContent }} /><br /><hr />
-          <h3>Comments</h3>
+          <h3>{commentsCount} Comments</h3>
       <div>
         <input type='text'
           value={commentText}
