@@ -31,9 +31,9 @@ const Home = () => {
     // const history = useHistory(); //Not working in the project
 
 
-    useEffect = () => {
-        setShow(true)
-    }
+    // useEffect = () => {
+    //     setShow(true)
+    // }
     const handleSearch = async () => {
         setShow(false)
         // try {
