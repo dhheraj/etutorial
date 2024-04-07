@@ -24,6 +24,7 @@ const Dashboard = () => {
   const [totalImagePostSaved, setTotalImagePostSaved] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isSelectedTab, setIsSelectedTab] = useState(true);
   useEffect(() => {
     // Fetch followers
     const fetchFollowers = async () => {
@@ -427,8 +428,24 @@ const Dashboard = () => {
     return <div>Error: {error}</div>;
   }
   // const totalLikes = liked.length;
-  return (<>
+  return (
+  <>
     {isCurrentUer ?
+    <div>
+    {/* <div className='flex justify-center items-center'>
+    <div class="inline-flex rounded-md shadow-sm ">
+        <button onClick={() => { setIsSelectedTab(true) }} aria-current="page" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+            Followers
+        </button>
+        <button class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+Likes
+</button>
+        <button onClick={() => { setIsSelectedTab(false) }} class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+            Save
+        </button>
+    </div>
+</div> */}
+
       <Tabs  align='center' variant='enclosed'>
         <TabList >
           <Tab>Follower</Tab>
@@ -485,6 +502,7 @@ const Dashboard = () => {
         </TabPanel> */}
         </TabPanels>
       </Tabs>
+      </div>
       // <div>
       // {/* //   <h2>Followers: {totalUsers}</h2>
       //      {data.map(doc=>
