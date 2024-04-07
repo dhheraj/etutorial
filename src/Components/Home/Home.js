@@ -18,6 +18,8 @@ const Home = () => {
 
     const [profiledata, setProfileData] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isSelectedTab, setIsSelectedTab] = useState(true);
+    const [show, setShow] = useState(true);
     const [isSearch, setIsSearch] = useState(true);
     const [error, setError] = useState(null);
     const [search, setSearch] = useState('');
@@ -29,11 +31,11 @@ const Home = () => {
     // const history = useHistory(); //Not working in the project
 
 
-// useEffect=()=>{
-//     setIsSearch(false)
-// }
+    useEffect = () => {
+        setShow(true)
+    }
     const handleSearch = async () => {
-
+        setShow(false)
         // try {
         //     const snapshot = await firestore.collection('posts').get();
         //     const fetchedData = snapshot.docs.map(doc => ({
@@ -75,7 +77,7 @@ const Home = () => {
 
         try {
             setLoading(true)
-            
+
 
 
             const textpostsSnapshot = await firestore.collection('posts').where('tags', 'array-contains', search).get();
@@ -125,10 +127,10 @@ const Home = () => {
             console.error('Error fetching documents: ', error.message);
             // setError(error.message);
         }
-finally{
-    setLoading(false)
-    setIsSearch(false)
-}
+        finally {
+            setLoading(false)
+            setIsSearch(false)
+        }
 
 
 
@@ -199,108 +201,147 @@ finally{
 
             {
                 loading ?
-                    <div class='flex space-x-2 justify-center bg-white h-screen dark:invert mt-5'>
+                    <div class='flex space-x-2 justify-center bg-white dark:invert mt-5'>
                         <span class='sr-only'>Loading...</span>
                         <div class='h-4 w-4 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
                         <div class='h-4 w-4 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
                         <div class='h-4 w-4 bg-black rounded-full animate-bounce'></div>
-                    </div>  :""}
-                    {
-                isSearch ?"":<Tabs align='center' variant='enclosed'>
-                <TabList >
-                    <Tab>Text</Tab>
-                    <Tab>Image</Tab>
-                    {/* <Tab>Three</Tab> */}
-                </TabList>
+                    </div> :
 
-                <TabPanels align='start'>
-                    <TabPanel>
-                        <div>
-                            {
-                                textmergedData.map(doc => (
-
-                                    <div key={doc.postId} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                                        {doc.user ? <button onClick={() => handleViewProfile(doc)}>
-                                            <Link to={data}>
-                                                <div className='mb-3 flex'>
-                                                    <img className='w-12 h-12  rounded-full' src={doc.user.photoUrl} />
-
-                                                    <div className=' ml-3 '>
-                                                        <p className='text-lg'>{doc.user.name}</p>
-                                                        <h6 className='text-sm'>Posted on: {doc.postedDate}</h6>
-                                                    </div>
-
-                                                </div></Link>
-                                        </button> : ""}
-                                        {/* onClick={() => handleClick(doc)} */}
-                                        <div onClick={() => handleClick(doc)}>
-                                            {/* <div onClick={handleTransfer}> */}
-                                            <Link to={data}>
-                                                <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                                    {doc.postTitle}
-                                                </h5>
-                                            </Link>
-                                            {/* </div> */}
-
-                                            <p className="line-clamp-1" dangerouslySetInnerHTML={{ __html: doc.postContent }} />
-
-                                        </div>
-                                    </div>
-                                ))
-                            }
-                        </div>
-
-
-                    </TabPanel>
-                    <TabPanel>
-                        {
-                            imagemergedData.map(doc => (
-
-                                <div key={doc.postId} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-
-                                    {doc.user ? <button onClick={() => handleViewProfile(doc)}>
-                                        <Link to={data}>
-                                            <div className='mb-3 flex'>
-                                                <img className='w-12  h-12 rounded-full' src={doc.user.photoUrl} />
-
-                                                <div className=' ml-3 '>
-                                                    <p className='text-lg'>{doc.user.name}</p>
-                                                    <h6 className='text-sm'>Posted on: {doc.postedDate}</h6>
-                                                </div>
-
-                                            </div></Link>
-                                    </button> : ""}
-
-                                    <div onClick={() => handleImagePostClick(doc)}>
-
-                                        {/* <div onClick={handleTransfer}> */}
-                                        <Link to={data}>
-                                            <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                                {doc.title}
-                                            </h5>
-                                        </Link>
-
-
-                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                            <div>
-                                                <img class="h-auto max-w-full rounded-lg" src={doc.url} />
+                    <div>{
+                        show ? <div className='flex justify-center text-center'>Your search result will be display here...</div> :
+                            <div>
+                                <div>{
+                                    textmergedData.length === 0 && imagemergedData.length === 0 ?
+                                        <div className='flex justify-center text-center'>No search result found!"</div> :
+                                        <div className='flex justify-center items-center'>
+                                            <div class="inline-flex rounded-md shadow-sm ">
+                                                <button onClick={() => { setIsSelectedTab(true) }} aria-current="page" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                                                    Text
+                                                </button>
+                                                {/* <button class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                                        Settings
+                                    </button> */}
+                                                <button onClick={() => { setIsSelectedTab(false) }} class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                                                    Image
+                                                </button>
                                             </div>
-                                        </div>
-
-
-                                        {/* <img className='w-40' src={doc.url} /> */}
-
-                                    </div>
+                                        </div>}
                                 </div>
-                            ))
-                        }
-                    </TabPanel>
-                    {/* <TabPanel>
-                <p>three!</p>
-            </TabPanel> */}
-                </TabPanels>
-            </Tabs>
-            }
+                                <div>
+                                    {
+                                        textmergedData.length === 0 && imagemergedData.length === 0 ?
+                                            "" :
+                                            <div>
+                                                {
+                                                    isSelectedTab ?
+                                                        <div>
+                                                            {textmergedData.length === 0 ?
+                                                                <div className='flex justify-center text-center'>No search data found of "{search}" <br />View in the image Tab</div> : <div>
+                                                                    {
+                                                                        textmergedData.map(doc => (
+
+                                                                            <div key={doc.postId} className="mt-5 max-w-4/5 mx-auto  w-4/5 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                                                                                {doc.user ? <button onClick={() => handleViewProfile(doc)}>
+                                                                                    <Link to={data}>
+                                                                                        <div className='mb-3 flex'>
+                                                                                            <img className='w-12 h-12  rounded-full' src={doc.user.photoUrl} />
+
+                                                                                            <div className=' ml-3 '>
+                                                                                                <p className='text-lg'>{doc.user.name}</p>
+                                                                                                <h6 className='text-sm'>Posted on: {doc.postedDate}</h6>
+                                                                                            </div>
+
+                                                                                        </div></Link>
+                                                                                </button> : ""}
+                                                                                {/* onClick={() => handleClick(doc)} */}
+                                                                                <div onClick={() => handleClick(doc)}>
+                                                                                    {/* <div onClick={handleTransfer}> */}
+                                                                                    <Link to={data}>
+                                                                                        <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                                                                            {doc.postTitle}
+                                                                                        </h5>
+                                                                                    </Link>
+                                                                                    {/* </div> */}
+
+                                                                                    <p className="line-clamp-1" dangerouslySetInnerHTML={{ __html: doc.postContent }} />
+
+                                                                                </div>
+                                                                            </div>
+                                                                        ))
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        </div>
+
+
+                                                        :
+                                                        <div>{imagemergedData.length === 0 ?
+                                                            <div className='flex justify-center text-center'>No search data found of "{search}"</div> :
+                                                            <div className="grid grid-cols-4 md:grid-cols-6">
+                                                                {
+                                                                    imagemergedData.map(doc => (
+                                                                        <div key={doc.postId} className='max-w-2/4 mx-auto  w-3xl p-1'>
+                                                                            <div >
+
+                                                                                <div onClick={() => handleImagePostClick(doc)}>
+
+                                                                                    {/* <div onClick={handleTransfer}> */}
+
+                                                                                    <Link to={data}>
+                                                                                        <p className="mb-2 font-medium tracking-tight text-gray-900 dark:text-white text-sm">
+                                                                                            {doc.title}
+                                                                                        </p>
+                                                                                    </Link>
+                                                                                    {/* class="grid grid-cols-2 md:grid-cols-3 gap-4" */}
+                                                                                    <Link to={data}>
+                                                                                        <div >
+                                                                                            <div>
+                                                                                                <img class="h-52 w-52 max-w-full max-h-full rounded-lg" src={doc.url} />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </Link>
+
+
+                                                                                    {/* <img className='w-40' src={doc.url} /> */}
+
+                                                                                </div>
+
+                                                                            </div>
+                                                                            <div className=''>
+                                                                                {doc.user ? <button onClick={() => handleViewProfile(doc)}>
+                                                                                    <Link to={data}>
+                                                                                        <div className='mb-3 flex'>
+                                                                                            <img className='w-4  h-4 rounded-full' src={doc.user.photoUrl} alt='profile' />
+                                                                                            <p className='ml-1 text-xs'>{doc.user.name}</p>
+                                                                                            {/* <div className=' ml-3 '>
+                                                            <p className='text-lg'>{doc.user.name}</p>
+                                                            <h6 className='text-sm'>Posted on: {doc.postedDate}</h6>
+                                                        </div> */}
+
+                                                                                        </div></Link>
+                                                                                </button>
+                                                                                    : ""}
+                                                                            </div>
+                                                                        </div>
+                                                                    ))
+                                                                }
+                                                            </div>
+                                                        }</div>
+
+
+                                                }
+
+                                            </div>
+                                    }</div>
+
+                            </div>
+                    }
+                    </div>}
+
+
+
+
 
 
 

@@ -204,11 +204,11 @@ const PreviewPost = () => {
             <div className='mb-3 flex '>
               {/* Display user profile */}
               {item.user ?
-                <img className='w-12 rounded-full' src={item.user.photoUrl} alt="user profile photo" />
+                <img className='w-12 h-12 rounded-full' src={item.user.photoUrl} alt="user profile photo" />
                 : 'Error in loading user profile'
               }
 
-              <div className='mt-1 ml-3 '>
+              <div className='ml-3 '>
                 <p className='text-lg'>
                   {item.user ? item.user.name : 'Error in loading user name'}
                 </p>
