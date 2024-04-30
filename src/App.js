@@ -27,7 +27,7 @@ import PreviewImagePost from './Components/Home/PreviewImagePost/PreviewImagePos
 
 function App({ Component }) {
   return (
-    <>   
+    <div className='h-screen'>   
       {/* <p
         className='text-center text-7xl text-green-300 bg-black'
       >App</p> */}
@@ -100,7 +100,7 @@ function App({ Component }) {
       {/* <Footer/> */}
       
       
-    </>
+    </div>
   );
 }
 

@@ -24,7 +24,7 @@ const Dashboard = () => {
   const [totalImagePostSaved, setTotalImagePostSaved] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isSelectedTab, setIsSelectedTab] = useState(true);
+  const [selectedTab, setSelectedTab] = useState(0);
   useEffect(() => {
     // Fetch followers
     const fetchFollowers = async () => {
@@ -429,121 +429,117 @@ const Dashboard = () => {
   }
   // const totalLikes = liked.length;
   return (
-  <>
-    {isCurrentUer ?
-    <div>
-    {/* <div className='flex justify-center items-center'>
-    <div class="inline-flex rounded-md shadow-sm ">
-        <button onClick={() => { setIsSelectedTab(true) }} aria-current="page" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-            Followers
-        </button>
-        <button class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-Likes
-</button>
-        <button onClick={() => { setIsSelectedTab(false) }} class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-            Save
-        </button>
-    </div>
-</div> */}
+    <>
+      {isCurrentUer ?
+        <div>
+          <div className='flex justify-center items-center'>
+            <div class="inline-flex rounded-md shadow-sm ">
+              <button onClick={() => { setSelectedTab(0) }} aria-current="page" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                Followers
+              </button>
+              <button onClick={() => { setSelectedTab(1) }} class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                Likes
+              </button>
+              <button onClick={() => { setSelectedTab(2) }} class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                Save
+              </button>
+            </div>
+          </div>
+                <div>
+                  {
 
-      <Tabs  align='center' variant='enclosed'>
-        <TabList >
-          <Tab>Follower</Tab>
-          <Tab>Likes</Tab>
-          <Tab>Save</Tab>
-          {/* <Tab>Three</Tab> */}
-        </TabList>
+                    selectedTab === 0 ?
+                      <div>
+                        <h2>Followers: {totalUsers}</h2>
+                        <div>
+                          {users.map((user, index) => (
+                            <div key={index}>
 
-        <TabPanels align='start'>
-          <TabPanel>
-          <h2>Followers: {totalUsers}</h2>
-            <div>
-              {users.map((user, index) => (
-                <div key={index}>
-
-                  <ul class="max-w-md divide-y divide-gray-200 dark:divide-gray-700">
-                    <li class="pb-3 sm:pb-1">
-                      <div class="flex items-center space-x-4 rtl:space-x-reverse">
-                        <div class="flex-shrink-0">
-                          <img class="w-8 h-8 rounded-full" src={user.photoUrl} alt="Neil image" />
-                        </div>
-                        <div class="flex-1 min-w-0">
-                          <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
-                            {user.name}
-                          </p>
-                          {/* <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                              <ul class="max-w-md divide-y divide-gray-200 dark:divide-gray-700">
+                                <li class="pb-3 sm:pb-1">
+                                  <div class="flex items-center space-x-4 rtl:space-x-reverse">
+                                    <div class="flex-shrink-0">
+                                      <img class="w-8 h-8 rounded-full" src={user.photoUrl} alt="Neil image" />
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                      <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                        {user.name}
+                                      </p>
+                                      {/* <p class="text-sm text-gray-500 truncate dark:text-gray-400">
                 email@flowbite.com
               </p> */}
-                        </div>
-                        {/* <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                                    </div>
+                                    {/* <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
               $320
             </div> */}
-                      </div>
-                    </li>
-                  </ul>
+                                  </div>
+                                </li>
+                              </ul>
+                            </div>
+
+
+                          ))}
+                        </div></div>:""
+                  }
+
                 </div>
 
-
-              ))}
-            </div>
-
-
-          </TabPanel>
-          <TabPanel>
-            <h2>Total Likes on User's Posts</h2>
-            <p>Total likes: {totalTextPostLikes+totalImagePostLikes}</p>
-          </TabPanel>
-          <TabPanel>
-            <h2>Total Save on User's Posts</h2>
-            <p>Total saved: {totalTextPostSaved+totalImagePostSaved}</p>
-          </TabPanel>
-          {/* <TabPanel>
-            <p>three!</p>
-        </TabPanel> */}
-        </TabPanels>
-      </Tabs>
-      </div>
-      // <div>
-      // {/* //   <h2>Followers: {totalUsers}</h2>
-      //      {data.map(doc=>
-      //   <div key={doc.id}>
-      //     {doc.postId}
-      //   </div>
-      // )} */}
+              {
+                selectedTab === 1?
+                <div>
+<h2>Total Likes on User's Posts</h2>
+                <p>Total likes: {totalTextPostLikes + totalImagePostLikes}</p></div>:""
+              }
+                {
+                  selectedTab===2?
+                  <div><h2>Total Save on User's Posts</h2>
+                  <p>Total saved: {totalTextPostSaved + totalImagePostSaved}</p></div>:""
+                }
+              
+                
+              
+        </div>
+        // <div>
+        // {/* //   <h2>Followers: {totalUsers}</h2>
+        //      {data.map(doc=>
+        //   <div key={doc.id}>
+        //     {doc.postId}
+        //   </div>
+        // )} */}
 
 
-      // {/* Comments {totalComments} */}
-      // {/* {comments.map((comment, index) => (
-      //   <div key={comment.id}> */}
-      //     {/* Display the user who commented */}
-      //     {/* {userData[index] && (
-      //       <div>
-      //         <div class="flex items-center gap-4 p-1">
-      //           <img class="w-10 h-10 rounded-full" src={userData[index].photoUrl} alt="User profile" />
-      //           <div class="font-medium dark:text-white">
-      //             <div>{userData[index].name}</div>
-      //             <div class="text-sm text-gray-500 dark:text-gray-400">{comment.timestamp && comment.timestamp.toDate().toLocaleDateString()}</div>
-      //           </div>
-      //         </div>
-      //         <p className='pl-2 text-black'>{comment.text}</p><hr />
-      //       </div>
-      //     )}
-      //   </div>
-      // ))}
-      // <h2>Total Likes on User's Posts</h2>
-      // <p>Total likes: {totalLikes}</p> */}
-      // {/* <h2>Likes: {totalLikes}</h2> */}
-      // {/* <h2>Posts with Total Likes:</h2>
-      // {posts.map(post => (
-      //   <div key={post.id}>
-      //     <p>Post ID: {post.id}</p>
-      //     <p>Content: {post.content}</p>
-      //     <p>Likes: {fetchLikesForPost(post.id)}</p>
-      //   </div>
-      // ))} */}
-      // </div>
-      : "Please login to check your Dashboard."}
-  </>
+        // {/* Comments {totalComments} */}
+        // {/* {comments.map((comment, index) => (
+        //   <div key={comment.id}> */}
+        //     {/* Display the user who commented */}
+        //     {/* {userData[index] && (
+        //       <div>
+        //         <div class="flex items-center gap-4 p-1">
+        //           <img class="w-10 h-10 rounded-full" src={userData[index].photoUrl} alt="User profile" />
+        //           <div class="font-medium dark:text-white">
+        //             <div>{userData[index].name}</div>
+        //             <div class="text-sm text-gray-500 dark:text-gray-400">{comment.timestamp && comment.timestamp.toDate().toLocaleDateString()}</div>
+        //           </div>
+        //         </div>
+        //         <p className='pl-2 text-black'>{comment.text}</p><hr />
+        //       </div>
+        //     )}
+        //   </div>
+        // ))}
+        // <h2>Total Likes on User's Posts</h2>
+        // <p>Total likes: {totalLikes}</p> */}
+        // {/* <h2>Likes: {totalLikes}</h2> */}
+        // {/* <h2>Posts with Total Likes:</h2>
+        // {posts.map(post => (
+        //   <div key={post.id}>
+        //     <p>Post ID: {post.id}</p>
+        //     <p>Content: {post.content}</p>
+        //     <p>Likes: {fetchLikesForPost(post.id)}</p>
+        //   </div>
+        // ))} */}
+        // </div>
+        : "Please login to check your Dashboard."}
+    </>
   )
 }
 

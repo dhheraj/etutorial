@@ -188,12 +188,18 @@ const Home = () => {
     }
     return (
         <div>
-            <p className='flex justify-center items-center p-5 text-2xl'>Welcome, {localStorage.getItem("name")}</p>
+
+            {
+                localStorage.getItem('id')?
+                <p className='flex justify-center items-center p-5 text-2xl'>Welcome, {localStorage.getItem("name")}</p>
+                :<p className='flex justify-center items-center p-5 text-2xl'>Login as a Guest</p>
+            }
+            
             {/* {authUser.userLoginData.user.uid}<br/> */}
             <div className='flex justify-center'>
-                <div className="flex w-96 flex-row gap-6">
-                    <Input value={search} onChange={textSearch} variant="Search" label="Search here" placeholder="Standard" required size='lg' />
-                    <button onClick={handleSearch} disabled={loading} class=" rounded-md p-2.5 text-gray-70 bg-cyan-500 hover:bg-cyan-300 ..."><CgSearch size={27} /></button>
+                <div className="flex w-96 flex-row ml-4 mr-4 mb-2">
+                    <input className='w-full border-black p-2 pl-5 border-2 rounded-s-full' value={search} onChange={textSearch} variant="Search" label="search here..." placeholder="Search" required />
+                    <button onClick={handleSearch} disabled={loading} class=" rounded-e-full p-2.5 text-gray-70 bg-cyan-500 hover:bg-cyan-300 ... border-2 border-black"><CgSearch size={27} /></button>
                 </div>
             </div>
 
@@ -209,7 +215,7 @@ const Home = () => {
                     </div> :
 
                     <div>{
-                        show ? <div className='flex justify-center text-center'>Your search result will be display here...</div> :
+                        show ? <div className='text-center m-4 p-5'>Your search result will be display here...</div> :
                             <div>
                                 <div>{
                                     textmergedData.length === 0 && imagemergedData.length === 0 ?
